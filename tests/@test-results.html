@@ -1,0 +1,1653 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FileToMarkdown - Renderer Test</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    h1 {
+      color: #2c3e50;
+      margin-top: 0;
+    }
+    .summary {
+      background-color: #e8f5e9;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .summary h2 {
+      margin-top: 0;
+      color: #2e7d32;
+    }
+    .test-summary {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .summary-stats {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    .stat-box {
+      flex: 1;
+      min-width: 120px;
+      background-color: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #345;
+    }
+    .stat-label {
+      font-size: 0.9rem;
+      color: #666;
+    }
+    .stat-passed {
+      background-color: #e8f5e9;
+    }
+    .stat-passed .stat-value {
+      color: #2e7d32;
+    }
+    .stat-warning {
+      background-color: #fff8e1;
+    }
+    .stat-warning .stat-value {
+      color: #f57c00;
+    }
+    .stat-failed {
+      background-color: #ffebee;
+    }
+    .stat-failed .stat-value {
+      color: #c62828;
+    }
+    .stat-percentage {
+      font-size: 2.8rem;
+    }
+    .test-navigation {
+      background-color: #fff;
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin: 0 0 30px 0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .nav-list {
+      list-style-type: none;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .nav-list li {
+      background-color: #f0f4f8;
+      border-radius: 4px;
+    }
+    .nav-passed {
+      background-color: #e8f5e9 !important;
+    }
+    .nav-failed {
+      background-color: #ffebee !important;
+    }
+    .nav-status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 5px;
+    }
+    .dot-pass {
+      background-color: #2e7d32;
+    }
+    .dot-fail {
+      background-color: #c62828;
+    }
+    .nav-list a {
+      display: flex;
+      align-items: center;
+      padding: 5px 10px;
+      text-decoration: none;
+      color: #345;
+      transition: all 0.2s;
+    }
+    .nav-list a:hover {
+      background-color: #5c6bc0;
+      color: white;
+      border-radius: 4px;
+    }
+    .nav-list a:hover .nav-status-dot {
+      background-color: white;
+    }
+    .test-section {
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      border-top: 4px solid #5c6bc0;
+    }
+    .test-passed {
+      border-top-color: #2e7d32;
+    }
+    .test-failed {
+      border-top-color: #c62828;
+    }
+    .test-status {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 4px;
+      margin-right: 15px;
+      font-weight: bold;
+      font-size: 0.8rem;
+      color: white;
+    }
+    .status-pass {
+      background-color: #2e7d32;
+    }
+    .status-fail {
+      background-color: #c62828;
+    }
+    .feature-title {
+      color: #2c3e50;
+      margin: 0;
+    }
+    .feature-description {
+      color: #666;
+      font-style: italic;
+      margin-bottom: 10px;
+    }
+    .test-criteria {
+      background-color: #f5f5f5;
+      padding: 10px 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      border-left: 4px solid #5c6bc0;
+    }
+    .test-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+      margin-bottom: 20px;
+    }
+    .test-input, .test-output {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      overflow: auto;
+      background-color: #fff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      max-height: 500px;
+    }
+    .test-input {
+      background-color: #f8f9fa;
+    }
+    .test-output {
+      background-color: #fff;
+    }
+    .section-header {
+      background-color: #f0f4f8;
+      padding: 10px 15px;
+      border-radius: 5px;
+      margin: 0 0 20px 0;
+      font-weight: bold;
+      color: #345;
+      border-left: 4px solid #5c6bc0;
+    }
+    .section-divider {
+      border: 0;
+      height: 1px;
+      background-color: #eee;
+      margin: 0 0 30px 0;
+      display: none; /* Hide dividers between sections since we're using cards */
+    }
+    pre {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-radius: 6px;
+      overflow-x: auto;
+      border: 1px solid #e0e0e0;
+      margin: 0;
+    }
+    code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+      font-size: 0.9em;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    .timestamp {
+      font-size: 0.9em;
+      color: #777;
+    }
+    .meta-info {
+      margin-top: 20px;
+      font-size: 0.9em;
+      color: #666;
+      background-color: #f5f5f5;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 15px 0;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    blockquote {
+      border-left: 4px solid #ccc;
+      margin-left: 0;
+      padding: 10px 20px;
+      color: #555;
+      background-color: #f9f9f9;
+      border-radius: 0 5px 5px 0;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 15px auto;
+      border-radius: 5px;
+    }
+    hr {
+      border: 0;
+      height: 1px;
+      background-color: #ddd;
+      margin: 25px 0;
+    }
+    /* Styles for admonitions */
+    .admonition {
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .admonition-title {
+      font-weight: bold;
+      margin-top: 0;
+    }
+    .admonition.note {
+      background-color: #e8f4fd;
+      border-left: 4px solid #4a87c5;
+    }
+    .admonition.warning {
+      background-color: #fff8e6;
+      border-left: 4px solid #f0ad4e;
+    }
+    .admonition.danger {
+      background-color: #fde8e8;
+      border-left: 4px solid #d9534f;
+    }
+    /* Math expressions */
+    .math-inline, .math-block {
+      font-family: 'KaTeX_Math', 'Times New Roman', serif;
+    }
+    .math-block {
+      display: block;
+      text-align: center;
+      margin: 1em 0;
+      padding: 15px;
+      background-color: #f9f9f9;
+      border-radius: 5px;
+    }
+    /* Task lists */
+    .task-list-item {
+      list-style-type: none;
+      margin-left: -20px;
+    }
+    .task-list-item-checkbox {
+      margin-right: 8px;
+    }
+    /* Footnotes */
+    .footnote {
+      font-size: 0.9em;
+      color: #555;
+      border-top: 1px solid #eee;
+      padding-top: 15px;
+      margin-top: 30px;
+    }
+    .footnote-ref {
+      vertical-align: super;
+      font-size: 0.8em;
+      color: #0066cc;
+      text-decoration: none;
+    }
+    /* Diagrams */
+    .mermaid-diagram {
+      text-align: center;
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 20px 0;
+      border: 1px solid #eee;
+    }
+    /* Highlighted text */
+    mark {
+      background-color: #fff59d;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+    /* Code blocks with syntax highlighting improvements */
+    .language-javascript {
+      color: #333;
+    }
+    .language-javascript .keyword {
+      color: #07a;
+    }
+    .language-javascript .string {
+      color: #690;
+    }
+    .language-javascript .function {
+      color: #dd4a68;
+    }
+    .language-javascript .comment {
+      color: #999;
+    }
+    /* Add Python styles */
+    .language-python {
+      color: #333;
+    }
+    .language-python .keyword {
+      color: #0077aa; /* Similar to JS keyword color */
+    }
+    .language-python .string,
+    .language-python .string-literal {
+      color: #669900; /* Similar to JS string color */
+    }
+    .language-python .function {
+      color: #dd4a68; /* Similar to JS function color */
+    }
+    .language-python .comment {
+      color: #999;    /* Same as JS comment color */
+    }
+    .language-python .number {
+      color: #990055;
+    }
+    .language-python .class-name {
+      color: #55aaff;
+    }
+    .language-python .builtin,
+    .language-python .decorator {
+       color: #aa00ff;
+    }
+    /* YouTube Thumbnail Styles */
+    .youtube-thumbnail-link {
+      display: inline-block;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative; /* For potential play icon overlay later */
+    }
+    .youtube-thumbnail-link:hover {
+      border-color: #aaa;
+    }
+    .youtube-thumbnail-image {
+      display: block;
+      max-width: 240px; /* Limit thumbnail size */
+      height: auto;
+    }
+    /* More specific rule for images within the test output container */
+    .test-output img {
+      width: 100%;  /* Make image fill container width */
+      height: auto; /* Maintain aspect ratio */
+      max-width: none; /* Override the global max-width if needed */
+    }
+    /* Improved responsive design */
+    @media (max-width: 768px) {
+      .test-container {
+        grid-template-columns: 1fr;
+      }
+      .test-input, .test-output {
+        max-height: 400px;
+      }
+      .nav-list {
+        flex-direction: column;
+      }
+      .summary-stats {
+        flex-direction: column;
+      }
+    }
+    /* Toggle button for view switching */
+    .toggle-view {
+      float: right;
+      background-color: #f0f4f8;
+      border: 1px solid #ddd;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.8em;
+      cursor: pointer;
+      color: #345;
+      transition: all 0.2s;
+    }
+    .toggle-view:hover {
+      background-color: #5c6bc0;
+      color: white;
+      border-color: #5c6bc0;
+    }
+    
+    /* Output view container */
+    .output-display {
+      position: relative;
+    }
+    .rendered-view, .code-view {
+      transition: opacity 0.3s;
+    }
+    .rendered-view {
+      opacity: 1;
+      height: auto;
+      overflow: auto;
+    }
+    .code-view {
+      display: none;
+      opacity: 0;
+      height: 0;
+      overflow: hidden;
+    }
+    .rendered-view.active-view {
+      display: block;
+      opacity: 1;
+      height: auto;
+    }
+    .code-view.active-view {
+      display: block;
+      opacity: 1;
+      height: auto;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>FileToMarkdown - Renderer Test</h1>
+    <p>This page demonstrates the rendering capabilities of the FileToMarkdown renderer</p>
+  </header>
+
+  <div class="summary">
+    <h2>Test Summary</h2>
+    <p>This test demonstrates the conversion of various Markdown features to HTML using the FileToMarkdown renderer. Each section below shows a specific Markdown feature with its input and rendered output side by side.</p>
+    <div class="meta-info">
+      <div><strong>Test Run:</strong> 2025-04-10 22:20:58</div>
+      <div><strong>Test File:</strong> @test-results.html</div>
+      <div><strong>Renderer Version:</strong> 1.1.0</div>
+      <div><strong>Total Features Tested:</strong> 19</div>
+    </div>
+  </div>
+
+  
+  <div class="test-summary">
+    <div class="summary-stats">
+      <div class="stat-box">
+        <div class="stat-value">19</div>
+        <div class="stat-label">Total Tests</div>
+      </div>
+      <div class="stat-box stat-passed">
+        <div class="stat-value">19</div>
+        <div class="stat-label">Passed</div>
+      </div>
+      <div class="stat-box stat-failed">
+        <div class="stat-value">0</div>
+        <div class="stat-label">Failed</div>
+      </div>
+      <div class="stat-box stat-passed">
+        <div class="stat-value stat-percentage">100%</div>
+        <div class="stat-label">Pass Rate</div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="test-navigation">
+    <h3>Jump to Feature:</h3>
+    <ul class="nav-list">
+      
+        <li class="nav-passed">
+          <a href="#test-headings">
+            <span class="nav-status-dot dot-pass"></span>
+            Headings
+          </a>
+        </li>
+      
+        <li class="nav-passed">
+          <a href="#test-basic-formatting">
+            <span class="nav-status-dot dot-pass"></span>
+            Basic Formatting
+          </a>
+        </li>
+      
+        <li class="nav-passed">
+          <a href="#test-unordered-lists">
+            <span class="nav-status-dot dot-pass"></span>
+            Unordered Lists
+          </a>
+        </li>
+      
+        <li class="nav-passed">
+          <a href="#test-ordered-lists">
+            <span class="nav-status-dot dot-pass"></span>
+            Ordered Lists
+          </a>
+        </li>
+      
+        <li class="nav-passed">
+          <a href="#test-task-lists">
+            <span class="nav-status-dot dot-pass"></span>
+            Task Lists
+          </a>
+        </li>
+      
+        <li class="nav-passed">
+          <a href="#test-inline-code">
+            <span class="nav-status-dot dot-pass"></span>
+            Inline Code
+          </a>
+        </li>
+      
+        <li class="nav-passed">
+          <a href="#test-code-blocks">
+            <span class="nav-status-dot dot-pass"></span>
+            Code Blocks
+          </a>
+        </li>
+      
+        <li class="nav-passed">
+          <a href="#test-blockquotes">
+            <span class="nav-status-dot dot-pass"></span>
+            Blockquotes
+          </a>
+        </li>
+      
+        <li class="nav-passed">
+          <a href="#test-links">
+            <span class="nav-status-dot dot-pass"></span>
+            Links
+          </a>
+        </li>
+      
+        <li class="nav-passed">
+          <a href="#test-video-links">
+            <span class="nav-status-dot dot-pass"></span>
+            Video Links
+          </a>
+        </li>
+      
+        <li class="nav-passed">
+          <a href="#test-images">
+            <span class="nav-status-dot dot-pass"></span>
+            Images
+          </a>
+        </li>
+      
+        <li class="nav-passed">
+          <a href="#test-tables">
+            <span class="nav-status-dot dot-pass"></span>
+            Tables
+          </a>
+        </li>
+      
+        <li class="nav-passed">
+          <a href="#test-horizontal-rule">
+            <span class="nav-status-dot dot-pass"></span>
+            Horizontal Rule
+          </a>
+        </li>
+      
+        <li class="nav-passed">
+          <a href="#test-html-embedding">
+            <span class="nav-status-dot dot-pass"></span>
+            HTML Embedding
+          </a>
+        </li>
+      
+        <li class="nav-passed">
+          <a href="#test-footnotes">
+            <span class="nav-status-dot dot-pass"></span>
+            Footnotes
+          </a>
+        </li>
+      
+        <li class="nav-passed">
+          <a href="#test-subscript-and-superscript">
+            <span class="nav-status-dot dot-pass"></span>
+            Subscript and Superscript
+          </a>
+        </li>
+      
+        <li class="nav-passed">
+          <a href="#test-highlighted-text">
+            <span class="nav-status-dot dot-pass"></span>
+            Highlighted Text
+          </a>
+        </li>
+      
+        <li class="nav-passed">
+          <a href="#test-math-expressions">
+            <span class="nav-status-dot dot-pass"></span>
+            Math Expressions
+          </a>
+        </li>
+      
+        <li class="nav-passed">
+          <a href="#test-diagrams-(mermaid)">
+            <span class="nav-status-dot dot-pass"></span>
+            Diagrams (Mermaid)
+          </a>
+        </li>
+    </ul>
+  </div>
+  
+  
+    <div class="test-section test-passed" id="test-headings">
+      <div class="test-status">
+        <span class="status-badge status-pass">PASSED</span>
+        <h2 class="feature-title">Headings</h2>
+      </div>
+      <p class="feature-description">Markdown supports six levels of headings using # symbols</p>
+      <p class="test-criteria"><strong>Success Criteria:</strong> All six heading levels should be rendered with appropriate h1-h6 tags</p>
+      <div class="test-container">
+        <div class="test-input">
+          <div class="section-header">Markdown Input</div>
+          <pre><code># Heading 1
+## Heading 2
+### Heading 3
+#### Heading 4
+##### Heading 5
+###### Heading 6</code></pre>
+        </div>
+        <div class="test-output">
+          <div class="section-header">
+            HTML Output
+            <button class="toggle-view" data-section-id="output-headings">
+              <span class="view-label">View Raw HTML</span>
+            </button>
+          </div>
+          <div class="output-display" id="output-headings">
+            <div class="rendered-view active-view"><h1>Heading 1</h1>
+<h2>Heading 2</h2>
+<h3>Heading 3</h3>
+<h4>Heading 4</h4>
+<h5>Heading 5</h5>
+<h6>Heading 6</h6>
+</div>
+            <div class="code-view"><pre><code>&lt;h1&gt;Heading 1&lt;/h1&gt;
+&lt;h2&gt;Heading 2&lt;/h2&gt;
+&lt;h3&gt;Heading 3&lt;/h3&gt;
+&lt;h4&gt;Heading 4&lt;/h4&gt;
+&lt;h5&gt;Heading 5&lt;/h5&gt;
+&lt;h6&gt;Heading 6&lt;/h6&gt;
+</code></pre></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr class="section-divider">
+
+    <div class="test-section test-passed" id="test-basic-formatting">
+      <div class="test-status">
+        <span class="status-badge status-pass">PASSED</span>
+        <h2 class="feature-title">Basic Formatting</h2>
+      </div>
+      <p class="feature-description">Styling text with italic, bold, and strikethrough</p>
+      <p class="test-criteria"><strong>Success Criteria:</strong> Text should be properly styled with em, strong, and del tags</p>
+      <div class="test-container">
+        <div class="test-input">
+          <div class="section-header">Markdown Input</div>
+          <pre><code>Regular paragraph with *italic*, **bold**, and ***bold italic*** text.
+Also _italic_, __bold__, and ___bold italic___ using underscores.
+~~Strikethrough~~ is also supported.</code></pre>
+        </div>
+        <div class="test-output">
+          <div class="section-header">
+            HTML Output
+            <button class="toggle-view" data-section-id="output-basic-formatting">
+              <span class="view-label">View Raw HTML</span>
+            </button>
+          </div>
+          <div class="output-display" id="output-basic-formatting">
+            <div class="rendered-view active-view"><p>Regular paragraph with <em>italic</em>, <strong>bold</strong>, and <em><strong>bold italic</strong></em> text.<br>Also <em>italic</em>, <strong>bold</strong>, and <em><strong>bold italic</strong></em> using underscores.<br><del>Strikethrough</del> is also supported.</p>
+</div>
+            <div class="code-view"><pre><code>&lt;p&gt;Regular paragraph with &lt;em&gt;italic&lt;/em&gt;, &lt;strong&gt;bold&lt;/strong&gt;, and &lt;em&gt;&lt;strong&gt;bold italic&lt;/strong&gt;&lt;/em&gt; text.&lt;br&gt;Also &lt;em&gt;italic&lt;/em&gt;, &lt;strong&gt;bold&lt;/strong&gt;, and &lt;em&gt;&lt;strong&gt;bold italic&lt;/strong&gt;&lt;/em&gt; using underscores.&lt;br&gt;&lt;del&gt;Strikethrough&lt;/del&gt; is also supported.&lt;/p&gt;
+</code></pre></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr class="section-divider">
+
+    <div class="test-section test-passed" id="test-unordered-lists">
+      <div class="test-status">
+        <span class="status-badge status-pass">PASSED</span>
+        <h2 class="feature-title">Unordered Lists</h2>
+      </div>
+      <p class="feature-description">Creating bulleted lists with *, -, or + symbols</p>
+      <p class="test-criteria"><strong>Success Criteria:</strong> Lists should be rendered with ul and li tags, including proper nesting</p>
+      <div class="test-container">
+        <div class="test-input">
+          <div class="section-header">Markdown Input</div>
+          <pre><code>* Item 1
+* Item 2
+  * Nested item 1
+  * Nested item 2
+* Item 3
+
+- Alternative item 1
+- Alternative item 2
+
++ Another alternative item 1
++ Another alternative item 2</code></pre>
+        </div>
+        <div class="test-output">
+          <div class="section-header">
+            HTML Output
+            <button class="toggle-view" data-section-id="output-unordered-lists">
+              <span class="view-label">View Raw HTML</span>
+            </button>
+          </div>
+          <div class="output-display" id="output-unordered-lists">
+            <div class="rendered-view active-view"><ul>
+<li>Item 1</li>
+<li>Item 2<ul>
+<li>Nested item 1</li>
+<li>Nested item 2</li>
+</ul>
+</li>
+<li>Item 3</li>
+</ul>
+<ul>
+<li>Alternative item 1</li>
+<li>Alternative item 2</li>
+</ul>
+<ul>
+<li>Another alternative item 1</li>
+<li>Another alternative item 2</li>
+</ul>
+</div>
+            <div class="code-view"><pre><code>&lt;ul&gt;
+&lt;li&gt;Item 1&lt;/li&gt;
+&lt;li&gt;Item 2&lt;ul&gt;
+&lt;li&gt;Nested item 1&lt;/li&gt;
+&lt;li&gt;Nested item 2&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Item 3&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ul&gt;
+&lt;li&gt;Alternative item 1&lt;/li&gt;
+&lt;li&gt;Alternative item 2&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ul&gt;
+&lt;li&gt;Another alternative item 1&lt;/li&gt;
+&lt;li&gt;Another alternative item 2&lt;/li&gt;
+&lt;/ul&gt;
+</code></pre></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr class="section-divider">
+
+    <div class="test-section test-passed" id="test-ordered-lists">
+      <div class="test-status">
+        <span class="status-badge status-pass">PASSED</span>
+        <h2 class="feature-title">Ordered Lists</h2>
+      </div>
+      <p class="feature-description">Creating numbered lists with automatic numbering</p>
+      <p class="test-criteria"><strong>Success Criteria:</strong> Numbered lists should be rendered with ol and li tags with proper nesting</p>
+      <div class="test-container">
+        <div class="test-input">
+          <div class="section-header">Markdown Input</div>
+          <pre><code>1. First item
+2. Second item
+   1. Nested item 1
+   2. Nested item 2
+3. Third item</code></pre>
+        </div>
+        <div class="test-output">
+          <div class="section-header">
+            HTML Output
+            <button class="toggle-view" data-section-id="output-ordered-lists">
+              <span class="view-label">View Raw HTML</span>
+            </button>
+          </div>
+          <div class="output-display" id="output-ordered-lists">
+            <div class="rendered-view active-view"><ol>
+<li>First item</li>
+<li>Second item<ol>
+<li>Nested item 1</li>
+<li>Nested item 2</li>
+</ol>
+</li>
+<li>Third item</li>
+</ol>
+</div>
+            <div class="code-view"><pre><code>&lt;ol&gt;
+&lt;li&gt;First item&lt;/li&gt;
+&lt;li&gt;Second item&lt;ol&gt;
+&lt;li&gt;Nested item 1&lt;/li&gt;
+&lt;li&gt;Nested item 2&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;Third item&lt;/li&gt;
+&lt;/ol&gt;
+</code></pre></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr class="section-divider">
+
+    <div class="test-section test-passed" id="test-task-lists">
+      <div class="test-status">
+        <span class="status-badge status-pass">PASSED</span>
+        <h2 class="feature-title">Task Lists</h2>
+      </div>
+      <p class="feature-description">GitHub-flavored Markdown task lists with checkboxes</p>
+      <p class="test-criteria"><strong>Success Criteria:</strong> Task lists should include checkboxes (may require extension support)</p>
+      <div class="test-container">
+        <div class="test-input">
+          <div class="section-header">Markdown Input</div>
+          <pre><code>- [x] Completed task
+- [ ] Incomplete task
+- [x] Another completed task
+  - [ ] Nested task</code></pre>
+        </div>
+        <div class="test-output">
+          <div class="section-header">
+            HTML Output
+            <button class="toggle-view" data-section-id="output-task-lists">
+              <span class="view-label">View Raw HTML</span>
+            </button>
+          </div>
+          <div class="output-display" id="output-task-lists">
+            <div class="rendered-view active-view"><li class="task-list-item"><input type="checkbox" checked disabled> Completed task</li><li class="task-list-item"><input type="checkbox"  disabled> Incomplete task</li><li class="task-list-item"><input type="checkbox" checked disabled> Another completed task</li><ul>
+<li><input disabled="" type="checkbox"> Nested task</li>
+</ul>
+</div>
+            <div class="code-view"><pre><code>&lt;li class=&quot;task-list-item&quot;&gt;&lt;input type=&quot;checkbox&quot; checked disabled&gt; Completed task&lt;/li&gt;&lt;li class=&quot;task-list-item&quot;&gt;&lt;input type=&quot;checkbox&quot;  disabled&gt; Incomplete task&lt;/li&gt;&lt;li class=&quot;task-list-item&quot;&gt;&lt;input type=&quot;checkbox&quot; checked disabled&gt; Another completed task&lt;/li&gt;&lt;ul&gt;
+&lt;li&gt;&lt;input disabled=&quot;&quot; type=&quot;checkbox&quot;&gt; Nested task&lt;/li&gt;
+&lt;/ul&gt;
+</code></pre></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr class="section-divider">
+
+    <div class="test-section test-passed" id="test-inline-code">
+      <div class="test-status">
+        <span class="status-badge status-pass">PASSED</span>
+        <h2 class="feature-title">Inline Code</h2>
+      </div>
+      <p class="feature-description">Inline code with backticks</p>
+      <p class="test-criteria"><strong>Success Criteria:</strong> Inline code should be wrapped in code tags</p>
+      <div class="test-container">
+        <div class="test-input">
+          <div class="section-header">Markdown Input</div>
+          <pre><code>Use `inline code` to refer to code within text.
+
+The `console.log()` function outputs to the console.</code></pre>
+        </div>
+        <div class="test-output">
+          <div class="section-header">
+            HTML Output
+            <button class="toggle-view" data-section-id="output-inline-code">
+              <span class="view-label">View Raw HTML</span>
+            </button>
+          </div>
+          <div class="output-display" id="output-inline-code">
+            <div class="rendered-view active-view"><p>Use <code>inline code</code> to refer to code within text.</p>
+<p>The <code>console.log()</code> function outputs to the console.</p>
+</div>
+            <div class="code-view"><pre><code>&lt;p&gt;Use &lt;code&gt;inline code&lt;/code&gt; to refer to code within text.&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;console.log()&lt;/code&gt; function outputs to the console.&lt;/p&gt;
+</code></pre></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr class="section-divider">
+
+    <div class="test-section test-passed" id="test-code-blocks">
+      <div class="test-status">
+        <span class="status-badge status-pass">PASSED</span>
+        <h2 class="feature-title">Code Blocks</h2>
+      </div>
+      <p class="feature-description">Code blocks with triple backticks and optional language specification</p>
+      <p class="test-criteria"><strong>Success Criteria:</strong> Code blocks should be rendered with pre and code tags, with optional language-specific highlighting</p>
+      <div class="test-container">
+        <div class="test-input">
+          <div class="section-header">Markdown Input</div>
+          <pre><code>```javascript
+// Code block with syntax highlighting
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+console.log(greet(&#039;World&#039;));
+```
+
+```python
+# Python example
+def greet(name):
+    return f&quot;Hello, {name}!&quot;
+    
+print(greet(&quot;World&quot;))
+```
+
+```
+Plain code block without language specification
+No syntax highlighting applied
+```</code></pre>
+        </div>
+        <div class="test-output">
+          <div class="section-header">
+            HTML Output
+            <button class="toggle-view" data-section-id="output-code-blocks">
+              <span class="view-label">View Raw HTML</span>
+            </button>
+          </div>
+          <div class="output-display" id="output-code-blocks">
+            <div class="rendered-view active-view"><pre><code class="language-javascript">// Code block with syntax highlighting
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+console.log(greet(&#039;World&#039;));
+</code></pre>
+<pre><code class="language-python"># Python example
+def greet(name):
+    return f&quot;Hello, {name}!&quot;
+    
+print(greet(&quot;World&quot;))
+</code></pre>
+<pre><code>Plain code block without language specification
+No syntax highlighting applied
+</code></pre></div>
+            <div class="code-view"><pre><code>&lt;pre&gt;&lt;code&gt;[object Object]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;[object Object]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;[object Object]&lt;/code&gt;&lt;/pre&gt;
+</code></pre></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr class="section-divider">
+
+    <div class="test-section test-passed" id="test-blockquotes">
+      <div class="test-status">
+        <span class="status-badge status-pass">PASSED</span>
+        <h2 class="feature-title">Blockquotes</h2>
+      </div>
+      <p class="feature-description">Block quotations using > symbols</p>
+      <p class="test-criteria"><strong>Success Criteria:</strong> Blockquotes should use blockquote tags, supporting nesting</p>
+      <div class="test-container">
+        <div class="test-input">
+          <div class="section-header">Markdown Input</div>
+          <pre><code>&gt; This is a blockquote
+&gt; spanning multiple lines
+&gt;
+&gt; &gt; And a nested blockquote
+&gt; &gt; with multiple lines
+&gt;
+&gt; Back to the first level</code></pre>
+        </div>
+        <div class="test-output">
+          <div class="section-header">
+            HTML Output
+            <button class="toggle-view" data-section-id="output-blockquotes">
+              <span class="view-label">View Raw HTML</span>
+            </button>
+          </div>
+          <div class="output-display" id="output-blockquotes">
+            <div class="rendered-view active-view"><blockquote>
+<p>This is a blockquote<br>spanning multiple lines</p>
+<blockquote>
+<p>And a nested blockquote<br>with multiple lines</p>
+</blockquote>
+<p>Back to the first level</p>
+</blockquote>
+</div>
+            <div class="code-view"><pre><code>&lt;blockquote&gt;
+&lt;p&gt;This is a blockquote&lt;br&gt;spanning multiple lines&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;And a nested blockquote&lt;br&gt;with multiple lines&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Back to the first level&lt;/p&gt;
+&lt;/blockquote&gt;
+</code></pre></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr class="section-divider">
+
+    <div class="test-section test-passed" id="test-links">
+      <div class="test-status">
+        <span class="status-badge status-pass">PASSED</span>
+        <h2 class="feature-title">Links</h2>
+      </div>
+      <p class="feature-description">Various ways to create hyperlinks</p>
+      <p class="test-criteria"><strong>Success Criteria:</strong> Links should be rendered as a tags with proper href attributes</p>
+      <div class="test-container">
+        <div class="test-input">
+          <div class="section-header">Markdown Input</div>
+          <pre><code>[Link to example](https://example.com &quot;Example Website&quot;)
+
+&lt;https://example.com&gt; - Automatic URL linking
+
+[Reference link][ref-link]
+
+[ref-link]: https://example.com &quot;Reference Link&quot;
+
+[YouTube Video Link](https://www.youtube.com/watch?v=JstToSe6BsQ&amp;t=700s)</code></pre>
+        </div>
+        <div class="test-output">
+          <div class="section-header">
+            HTML Output
+            <button class="toggle-view" data-section-id="output-links">
+              <span class="view-label">View Raw HTML</span>
+            </button>
+          </div>
+          <div class="output-display" id="output-links">
+            <div class="rendered-view active-view"><p><a href="https://example.com" title="Example Website">Link to example</a></p>
+<p><a href="https://example.com">https://example.com</a> - Automatic URL linking</p>
+<p><a href="https://example.com" title="Reference Link">Reference link</a></p>
+<p><a href="https://www.youtube.com/watch?v=JstToSe6BsQ&t=700s">YouTube Video Link</a></p>
+</div>
+            <div class="code-view"><pre><code>&lt;p&gt;&lt;a href=&quot;https://example.com&quot; title=&quot;Example Website&quot;&gt;Link to example&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://example.com&quot;&gt;https://example.com&lt;/a&gt; - Automatic URL linking&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://example.com&quot; title=&quot;Reference Link&quot;&gt;Reference link&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://www.youtube.com/watch?v=JstToSe6BsQ&amp;t=700s&quot;&gt;YouTube Video Link&lt;/a&gt;&lt;/p&gt;
+</code></pre></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr class="section-divider">
+
+    <div class="test-section test-passed" id="test-video-links">
+      <div class="test-status">
+        <span class="status-badge status-pass">PASSED</span>
+        <h2 class="feature-title">Video Links</h2>
+      </div>
+      <p class="feature-description">Embedding video links using standard Markdown link syntax and thumbnail syntax</p>
+      <p class="test-criteria"><strong>Success Criteria:</strong> Video URLs should render as a thumbnail image link or a standard anchor tag.</p>
+      <div class="test-container">
+        <div class="test-input">
+          <div class="section-header">Markdown Input</div>
+          <pre><code>Thumbnail Link:
+@[youtube-thumbnail](https://www.youtube.com/watch?v=JstToSe6BsQ&amp;t=700s)
+
+Bare Auto-Link:
+https://www.youtube.com/watch?v=AnotherVideoID</code></pre>
+        </div>
+        <div class="test-output">
+          <div class="section-header">
+            HTML Output
+            <button class="toggle-view" data-section-id="output-video-links">
+              <span class="view-label">View Raw HTML</span>
+            </button>
+          </div>
+          <div class="output-display" id="output-video-links">
+            <div class="rendered-view active-view"><p>T<br>h<br>u<br>m<br>b<br>n<br>a<br>i<br>l<br><br>L<br>i<br>n<br>k<br>:</p>
+<a href="https://www.youtube.com/watch?v=JstToSe6BsQ&t=700s" class="youtube-thumbnail-link" target="_blank">
+                <img src="https://img.youtube.com/vi/JstToSe6BsQ/0.jpg" alt="YouTube Video Thumbnail" class="youtube-thumbnail-image">
+              </a><p>Bare Auto-Link:<br><a href="https://www.youtube.com/watch?v=AnotherVideoID">https://www.youtube.com/watch?v=AnotherVideoID</a></p>
+</div>
+            <div class="code-view"><pre><code>&lt;p&gt;T&lt;br&gt;h&lt;br&gt;u&lt;br&gt;m&lt;br&gt;b&lt;br&gt;n&lt;br&gt;a&lt;br&gt;i&lt;br&gt;l&lt;br&gt;&lt;br&gt;L&lt;br&gt;i&lt;br&gt;n&lt;br&gt;k&lt;br&gt;:&lt;/p&gt;
+&lt;a href=&quot;https://www.youtube.com/watch?v=JstToSe6BsQ&amp;t=700s&quot; class=&quot;youtube-thumbnail-link&quot; target=&quot;_blank&quot;&gt;
+                &lt;img src=&quot;https://img.youtube.com/vi/JstToSe6BsQ/0.jpg&quot; alt=&quot;YouTube Video Thumbnail&quot; class=&quot;youtube-thumbnail-image&quot;&gt;
+              &lt;/a&gt;&lt;p&gt;Bare Auto-Link:&lt;br&gt;&lt;a href=&quot;https://www.youtube.com/watch?v=AnotherVideoID&quot;&gt;https://www.youtube.com/watch?v=AnotherVideoID&lt;/a&gt;&lt;/p&gt;
+</code></pre></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr class="section-divider">
+
+    <div class="test-section test-passed" id="test-images">
+      <div class="test-status">
+        <span class="status-badge status-pass">PASSED</span>
+        <h2 class="feature-title">Images</h2>
+      </div>
+      <p class="feature-description">Embedding images with alt text and optional title</p>
+      <p class="test-criteria"><strong>Success Criteria:</strong> Images should be rendered as img tags with src and alt attributes</p>
+      <div class="test-container">
+        <div class="test-input">
+          <div class="section-header">Markdown Input</div>
+          <pre><code>![FileToMarkdown Logo](https://raw.githubusercontent.com/jojomondag/MyLogo/5785b2f3063c9a9bd49cd7f45a3504a297586122/logo.png &quot;FileToMarkdown Logo&quot;)
+
+![FileToMarkdown Logo with Size](https://raw.githubusercontent.com/jojomondag/MyLogo/5785b2f3063c9a9bd49cd7f45a3504a297586122/logo.png &quot;Project Logo&quot;)</code></pre>
+        </div>
+        <div class="test-output">
+          <div class="section-header">
+            HTML Output
+            <button class="toggle-view" data-section-id="output-images">
+              <span class="view-label">View Raw HTML</span>
+            </button>
+          </div>
+          <div class="output-display" id="output-images">
+            <div class="rendered-view active-view"><p><img src="https://raw.githubusercontent.com/jojomondag/MyLogo/5785b2f3063c9a9bd49cd7f45a3504a297586122/logo.png" alt="FileToMarkdown Logo" title="FileToMarkdown Logo"></p>
+<p><img src="https://raw.githubusercontent.com/jojomondag/MyLogo/5785b2f3063c9a9bd49cd7f45a3504a297586122/logo.png" alt="FileToMarkdown Logo with Size" title="Project Logo"></p>
+</div>
+            <div class="code-view"><pre><code>&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/jojomondag/MyLogo/5785b2f3063c9a9bd49cd7f45a3504a297586122/logo.png&quot; alt=&quot;FileToMarkdown Logo&quot; title=&quot;FileToMarkdown Logo&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/jojomondag/MyLogo/5785b2f3063c9a9bd49cd7f45a3504a297586122/logo.png&quot; alt=&quot;FileToMarkdown Logo with Size&quot; title=&quot;Project Logo&quot;&gt;&lt;/p&gt;
+</code></pre></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr class="section-divider">
+
+    <div class="test-section test-passed" id="test-tables">
+      <div class="test-status">
+        <span class="status-badge status-pass">PASSED</span>
+        <h2 class="feature-title">Tables</h2>
+      </div>
+      <p class="feature-description">Creating tables with alignment options</p>
+      <p class="test-criteria"><strong>Success Criteria:</strong> Tables should be rendered with table, tr, th, and td elements with appropriate alignment</p>
+      <div class="test-container">
+        <div class="test-input">
+          <div class="section-header">Markdown Input</div>
+          <pre><code>| Header 1 | Header 2 | Header 3 |
+|:---------|:--------:|---------:|
+| Left     | Center   | Right    |
+| aligned  | aligned  | aligned  |
+| text     | text     | text     |</code></pre>
+        </div>
+        <div class="test-output">
+          <div class="section-header">
+            HTML Output
+            <button class="toggle-view" data-section-id="output-tables">
+              <span class="view-label">View Raw HTML</span>
+            </button>
+          </div>
+          <div class="output-display" id="output-tables">
+            <div class="rendered-view active-view"><table>
+<thead>
+<tr>
+<th align="left">Header 1</th>
+<th align="center">Header 2</th>
+<th align="right">Header 3</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Left</td>
+<td align="center">Center</td>
+<td align="right">Right</td>
+</tr>
+<tr>
+<td align="left">aligned</td>
+<td align="center">aligned</td>
+<td align="right">aligned</td>
+</tr>
+<tr>
+<td align="left">text</td>
+<td align="center">text</td>
+<td align="right">text</td>
+</tr>
+</tbody></table>
+</div>
+            <div class="code-view"><pre><code>&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th align=&quot;left&quot;&gt;Header 1&lt;/th&gt;
+&lt;th align=&quot;center&quot;&gt;Header 2&lt;/th&gt;
+&lt;th align=&quot;right&quot;&gt;Header 3&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;&lt;tr&gt;
+&lt;td align=&quot;left&quot;&gt;Left&lt;/td&gt;
+&lt;td align=&quot;center&quot;&gt;Center&lt;/td&gt;
+&lt;td align=&quot;right&quot;&gt;Right&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&quot;left&quot;&gt;aligned&lt;/td&gt;
+&lt;td align=&quot;center&quot;&gt;aligned&lt;/td&gt;
+&lt;td align=&quot;right&quot;&gt;aligned&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&quot;left&quot;&gt;text&lt;/td&gt;
+&lt;td align=&quot;center&quot;&gt;text&lt;/td&gt;
+&lt;td align=&quot;right&quot;&gt;text&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+</code></pre></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr class="section-divider">
+
+    <div class="test-section test-passed" id="test-horizontal-rule">
+      <div class="test-status">
+        <span class="status-badge status-pass">PASSED</span>
+        <h2 class="feature-title">Horizontal Rule</h2>
+      </div>
+      <p class="feature-description">Creating horizontal dividers with --- or *** or ___</p>
+      <p class="test-criteria"><strong>Success Criteria:</strong> Horizontal rules should be rendered as hr elements</p>
+      <div class="test-container">
+        <div class="test-input">
+          <div class="section-header">Markdown Input</div>
+          <pre><code>Content above
+
+---
+
+Content between rules
+
+***
+
+Content below
+
+___
+
+Final content</code></pre>
+        </div>
+        <div class="test-output">
+          <div class="section-header">
+            HTML Output
+            <button class="toggle-view" data-section-id="output-horizontal-rule">
+              <span class="view-label">View Raw HTML</span>
+            </button>
+          </div>
+          <div class="output-display" id="output-horizontal-rule">
+            <div class="rendered-view active-view"><p>Content above</p>
+<hr>
+<p>Content between rules</p>
+<hr>
+<p>Content below</p>
+<hr>
+<p>Final content</p>
+</div>
+            <div class="code-view"><pre><code>&lt;p&gt;Content above&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;Content between rules&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;Content below&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;Final content&lt;/p&gt;
+</code></pre></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr class="section-divider">
+
+    <div class="test-section test-passed" id="test-html-embedding">
+      <div class="test-status">
+        <span class="status-badge status-pass">PASSED</span>
+        <h2 class="feature-title">HTML Embedding</h2>
+      </div>
+      <p class="feature-description">Embedding raw HTML within Markdown</p>
+      <p class="test-criteria"><strong>Success Criteria:</strong> Raw HTML should be preserved in the output</p>
+      <div class="test-container">
+        <div class="test-input">
+          <div class="section-header">Markdown Input</div>
+          <pre><code>&lt;div style=&quot;padding: 10px; border: 1px solid #ccc;&quot;&gt;
+  &lt;p&gt;This is embedded &lt;em&gt;HTML&lt;/em&gt; content&lt;/p&gt;
+  &lt;ul&gt;
+    &lt;li&gt;HTML list item 1&lt;/li&gt;
+    &lt;li&gt;HTML list item 2&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+        <div class="test-output">
+          <div class="section-header">
+            HTML Output
+            <button class="toggle-view" data-section-id="output-html-embedding">
+              <span class="view-label">View Raw HTML</span>
+            </button>
+          </div>
+          <div class="output-display" id="output-html-embedding">
+            <div class="rendered-view active-view"><div style="padding: 10px; border: 1px solid #ccc;">
+  <p>This is embedded <em>HTML</em> content</p>
+  <ul>
+    <li>HTML list item 1</li>
+    <li>HTML list item 2</li>
+  </ul>
+</div></div>
+            <div class="code-view"><pre><code>&lt;div style=&quot;padding: 10px; border: 1px solid #ccc;&quot;&gt;
+  &lt;p&gt;This is embedded &lt;em&gt;HTML&lt;/em&gt; content&lt;/p&gt;
+  &lt;ul&gt;
+    &lt;li&gt;HTML list item 1&lt;/li&gt;
+    &lt;li&gt;HTML list item 2&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</code></pre></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr class="section-divider">
+
+    <div class="test-section test-passed" id="test-footnotes">
+      <div class="test-status">
+        <span class="status-badge status-pass">PASSED</span>
+        <h2 class="feature-title">Footnotes</h2>
+      </div>
+      <p class="feature-description">Adding footnotes with reference links</p>
+      <p class="test-criteria"><strong>Success Criteria:</strong> Footnotes should be properly linked and rendered at the bottom of the content</p>
+      <div class="test-container">
+        <div class="test-input">
+          <div class="section-header">Markdown Input</div>
+          <pre><code>Here&#039;s a sentence with a footnote[^1] and another footnote[^2].
+
+[^1]: This is the first footnote content.
+[^2]: This is the second footnote content with multiple paragraphs.
+
+    Indent paragraphs to include them in the footnote.
+
+    Like this paragraph.</code></pre>
+        </div>
+        <div class="test-output">
+          <div class="section-header">
+            HTML Output
+            <button class="toggle-view" data-section-id="output-footnotes">
+              <span class="view-label">View Raw HTML</span>
+            </button>
+          </div>
+          <div class="output-display" id="output-footnotes">
+            <div class="rendered-view active-view"><p>Here&#39;s a sentence with a footnote<sup><a id="footnote-ref-1" href="#footnote-1" data-footnote-ref aria-describedby="footnote-label">1</a></sup> and another footnote<sup><a id="footnote-ref-2" href="#footnote-2" data-footnote-ref aria-describedby="footnote-label">2</a></sup>.</p>
+<section class="footnotes" data-footnotes>
+<h2 id="footnote-label" class="sr-only">Footnotes</h2>
+<ol>
+<li id="footnote-1">
+<p>This is the first footnote content. <a href="#footnote-ref-1" data-footnote-backref aria-label="Back to reference 1">↩</a></p>
+</li>
+<li id="footnote-2">
+<p>This is the second footnote content with multiple paragraphs.</p>
+<p>Indent paragraphs to include them in the footnote.</p>
+<p>Like this paragraph. <a href="#footnote-ref-2" data-footnote-backref aria-label="Back to reference 2">↩</a></p>
+</li>
+</ol>
+</section>
+</div>
+            <div class="code-view"><pre><code>&lt;p&gt;Here&amp;#39;s a sentence with a footnote&lt;sup&gt;&lt;a id=&quot;footnote-ref-1&quot; href=&quot;#footnote-1&quot; data-footnote-ref aria-describedby=&quot;footnote-label&quot;&gt;1&lt;/a&gt;&lt;/sup&gt; and another footnote&lt;sup&gt;&lt;a id=&quot;footnote-ref-2&quot; href=&quot;#footnote-2&quot; data-footnote-ref aria-describedby=&quot;footnote-label&quot;&gt;2&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+&lt;section class=&quot;footnotes&quot; data-footnotes&gt;
+&lt;h2 id=&quot;footnote-label&quot; class=&quot;sr-only&quot;&gt;Footnotes&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li id=&quot;footnote-1&quot;&gt;
+&lt;p&gt;This is the first footnote content. &lt;a href=&quot;#footnote-ref-1&quot; data-footnote-backref aria-label=&quot;Back to reference 1&quot;&gt;↩&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&quot;footnote-2&quot;&gt;
+&lt;p&gt;This is the second footnote content with multiple paragraphs.&lt;/p&gt;
+&lt;p&gt;Indent paragraphs to include them in the footnote.&lt;/p&gt;
+&lt;p&gt;Like this paragraph. &lt;a href=&quot;#footnote-ref-2&quot; data-footnote-backref aria-label=&quot;Back to reference 2&quot;&gt;↩&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/section&gt;
+</code></pre></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr class="section-divider">
+
+    <div class="test-section test-passed" id="test-subscript-and-superscript">
+      <div class="test-status">
+        <span class="status-badge status-pass">PASSED</span>
+        <h2 class="feature-title">Subscript and Superscript</h2>
+      </div>
+      <p class="feature-description">Text formatting for scientific notation</p>
+      <p class="test-criteria"><strong>Success Criteria:</strong> Subscript should use sub tags and superscript should use sup tags</p>
+      <div class="test-container">
+        <div class="test-input">
+          <div class="section-header">Markdown Input</div>
+          <pre><code>H~2~O is the formula for water.
+
+E = mc^2^ is Einstein&#039;s famous equation.
+
+This feature requires ~subscript~ and ^superscript^ extensions.</code></pre>
+        </div>
+        <div class="test-output">
+          <div class="section-header">
+            HTML Output
+            <button class="toggle-view" data-section-id="output-subscript-and-superscript">
+              <span class="view-label">View Raw HTML</span>
+            </button>
+          </div>
+          <div class="output-display" id="output-subscript-and-superscript">
+            <div class="rendered-view active-view"><p>H<sub>2</sub>O is the formula for water.</p>
+<p>E = mc<sup>2</sup> is Einstein&#39;s famous equation.</p>
+<p>This feature requires <sub>subscript</sub> and <sup>superscript</sup> extensions.</p>
+</div>
+            <div class="code-view"><pre><code>&lt;p&gt;H&lt;sub&gt;2&lt;/sub&gt;O is the formula for water.&lt;/p&gt;
+&lt;p&gt;E = mc&lt;sup&gt;2&lt;/sup&gt; is Einstein&amp;#39;s famous equation.&lt;/p&gt;
+&lt;p&gt;This feature requires &lt;sub&gt;subscript&lt;/sub&gt; and &lt;sup&gt;superscript&lt;/sup&gt; extensions.&lt;/p&gt;
+</code></pre></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr class="section-divider">
+
+    <div class="test-section test-passed" id="test-highlighted-text">
+      <div class="test-status">
+        <span class="status-badge status-pass">PASSED</span>
+        <h2 class="feature-title">Highlighted Text</h2>
+      </div>
+      <p class="feature-description">Highlighting important text</p>
+      <p class="test-criteria"><strong>Success Criteria:</strong> Highlighted text should be wrapped in mark tags</p>
+      <div class="test-container">
+        <div class="test-input">
+          <div class="section-header">Markdown Input</div>
+          <pre><code>This is ==highlighted text== that stands out.
+
+Use ==highlighting== to draw attention to specific parts.</code></pre>
+        </div>
+        <div class="test-output">
+          <div class="section-header">
+            HTML Output
+            <button class="toggle-view" data-section-id="output-highlighted-text">
+              <span class="view-label">View Raw HTML</span>
+            </button>
+          </div>
+          <div class="output-display" id="output-highlighted-text">
+            <div class="rendered-view active-view"><p>This is <mark>highlighted text</mark> that stands out.</p>
+<p>Use <mark>highlighting</mark> to draw attention to specific parts.</p>
+</div>
+            <div class="code-view"><pre><code>&lt;p&gt;This is &lt;mark&gt;highlighted text&lt;/mark&gt; that stands out.&lt;/p&gt;
+&lt;p&gt;Use &lt;mark&gt;highlighting&lt;/mark&gt; to draw attention to specific parts.&lt;/p&gt;
+</code></pre></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr class="section-divider">
+
+    <div class="test-section test-passed" id="test-math-expressions">
+      <div class="test-status">
+        <span class="status-badge status-pass">PASSED</span>
+        <h2 class="feature-title">Math Expressions</h2>
+      </div>
+      <p class="feature-description">LaTeX-style mathematical expressions</p>
+      <p class="test-criteria"><strong>Success Criteria:</strong> Math expressions should be properly rendered (may require extension support)</p>
+      <div class="test-container">
+        <div class="test-input">
+          <div class="section-header">Markdown Input</div>
+          <pre><code>Inline math: $E = mc^2$
+
+Block math:
+
+$$
+\frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
+$$
+
+Another formula:
+
+$$
+\sum_{i=1}^{n} i = \frac{n(n+1)}{2}
+$$</code></pre>
+        </div>
+        <div class="test-output">
+          <div class="section-header">
+            HTML Output
+            <button class="toggle-view" data-section-id="output-math-expressions">
+              <span class="view-label">View Raw HTML</span>
+            </button>
+          </div>
+          <div class="output-display" id="output-math-expressions">
+            <div class="rendered-view active-view"><p>Inline math: <span class="math math-inline"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo>=</mo><mi>m</mi><msup><mi>c</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">E = mc^2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05764em;">E</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord mathnormal">m</span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></span></p>
+<p>Block math:</p>
+<div class="math math-block"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mfrac><mrow><mo>−</mo><mi>b</mi><mo>±</mo><msqrt><mrow><msup><mi>b</mi><mn>2</mn></msup><mo>−</mo><mn>4</mn><mi>a</mi><mi>c</mi></mrow></msqrt></mrow><mrow><mn>2</mn><mi>a</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">\frac{-b \pm \sqrt{b^2 - 4ac}}{2a}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:2.2764em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.5904em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">2</span><span class="mord mathnormal">a</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">−</span><span class="mord mathnormal">b</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">±</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9134em;"><span class="svg-align" style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord" style="padding-left:0.833em;"><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7401em;"><span style="top:-2.989em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord">4</span><span class="mord mathnormal">a</span><span class="mord mathnormal">c</span></span></span><span style="top:-2.8734em;"><span class="pstrut" style="height:3em;"></span><span class="hide-tail" style="min-width:0.853em;height:1.08em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1266em;"><span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></div><p>Another formula:</p>
+<div class="math math-block"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mi>i</mi><mo>=</mo><mfrac><mrow><mi>n</mi><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><mn>2</mn></mfrac></mrow><annotation encoding="application/x-tex">\sum_{i=1}^{n} i = \frac{n(n+1)}{2}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:2.9291em;vertical-align:-1.2777em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.6514em;"><span style="top:-1.8723em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.05em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∑</span></span></span><span style="top:-4.3em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.2777em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">i</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.113em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.427em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">2</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal">n</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord">1</span><span class="mclose">)</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></div></div>
+            <div class="code-view"><pre><code>&lt;p&gt;Inline math: &lt;span class=&quot;math math-inline&quot;&gt;&lt;span class=&quot;katex&quot;&gt;&lt;span class=&quot;katex-mathml&quot;&gt;&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;semantics&gt;&lt;mrow&gt;&lt;mi&gt;E&lt;/mi&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mi&gt;m&lt;/mi&gt;&lt;msup&gt;&lt;mi&gt;c&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;/mrow&gt;&lt;annotation encoding=&quot;application/x-tex&quot;&gt;E = mc^2&lt;/annotation&gt;&lt;/semantics&gt;&lt;/math&gt;&lt;/span&gt;&lt;span class=&quot;katex-html&quot; aria-hidden=&quot;true&quot;&gt;&lt;span class=&quot;base&quot;&gt;&lt;span class=&quot;strut&quot; style=&quot;height:0.6833em;&quot;&gt;&lt;/span&gt;&lt;span class=&quot;mord mathnormal&quot; style=&quot;margin-right:0.05764em;&quot;&gt;E&lt;/span&gt;&lt;span class=&quot;mspace&quot; style=&quot;margin-right:0.2778em;&quot;&gt;&lt;/span&gt;&lt;span class=&quot;mrel&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mspace&quot; style=&quot;margin-right:0.2778em;&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;base&quot;&gt;&lt;span class=&quot;strut&quot; style=&quot;height:0.8141em;&quot;&gt;&lt;/span&gt;&lt;span class=&quot;mord mathnormal&quot;&gt;m&lt;/span&gt;&lt;span class=&quot;mord&quot;&gt;&lt;span class=&quot;mord mathnormal&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;msupsub&quot;&gt;&lt;span class=&quot;vlist-t&quot;&gt;&lt;span class=&quot;vlist-r&quot;&gt;&lt;span class=&quot;vlist&quot; style=&quot;height:0.8141em;&quot;&gt;&lt;span style=&quot;top:-3.063em;margin-right:0.05em;&quot;&gt;&lt;span class=&quot;pstrut&quot; style=&quot;height:2.7em;&quot;&gt;&lt;/span&gt;&lt;span class=&quot;sizing reset-size6 size3 mtight&quot;&gt;&lt;span class=&quot;mord mtight&quot;&gt;2&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;Block math:&lt;/p&gt;
+&lt;div class=&quot;math math-block&quot;&gt;&lt;span class=&quot;katex-display&quot;&gt;&lt;span class=&quot;katex&quot;&gt;&lt;span class=&quot;katex-mathml&quot;&gt;&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot; display=&quot;block&quot;&gt;&lt;semantics&gt;&lt;mrow&gt;&lt;mfrac&gt;&lt;mrow&gt;&lt;mo&gt;−&lt;/mo&gt;&lt;mi&gt;b&lt;/mi&gt;&lt;mo&gt;±&lt;/mo&gt;&lt;msqrt&gt;&lt;mrow&gt;&lt;msup&gt;&lt;mi&gt;b&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;mo&gt;−&lt;/mo&gt;&lt;mn&gt;4&lt;/mn&gt;&lt;mi&gt;a&lt;/mi&gt;&lt;mi&gt;c&lt;/mi&gt;&lt;/mrow&gt;&lt;/msqrt&gt;&lt;/mrow&gt;&lt;mrow&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;mi&gt;a&lt;/mi&gt;&lt;/mrow&gt;&lt;/mfrac&gt;&lt;/mrow&gt;&lt;annotation encoding=&quot;application/x-tex&quot;&gt;\frac{-b \pm \sqrt{b^2 - 4ac}}{2a}&lt;/annotation&gt;&lt;/semantics&gt;&lt;/math&gt;&lt;/span&gt;&lt;span class=&quot;katex-html&quot; aria-hidden=&quot;true&quot;&gt;&lt;span class=&quot;base&quot;&gt;&lt;span class=&quot;strut&quot; style=&quot;height:2.2764em;vertical-align:-0.686em;&quot;&gt;&lt;/span&gt;&lt;span class=&quot;mord&quot;&gt;&lt;span class=&quot;mopen nulldelimiter&quot;&gt;&lt;/span&gt;&lt;span class=&quot;mfrac&quot;&gt;&lt;span class=&quot;vlist-t vlist-t2&quot;&gt;&lt;span class=&quot;vlist-r&quot;&gt;&lt;span class=&quot;vlist&quot; style=&quot;height:1.5904em;&quot;&gt;&lt;span style=&quot;top:-2.314em;&quot;&gt;&lt;span class=&quot;pstrut&quot; style=&quot;height:3em;&quot;&gt;&lt;/span&gt;&lt;span class=&quot;mord&quot;&gt;&lt;span class=&quot;mord&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;mord mathnormal&quot;&gt;a&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&quot;top:-3.23em;&quot;&gt;&lt;span class=&quot;pstrut&quot; style=&quot;height:3em;&quot;&gt;&lt;/span&gt;&lt;span class=&quot;frac-line&quot; style=&quot;border-bottom-width:0.04em;&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&quot;top:-3.677em;&quot;&gt;&lt;span class=&quot;pstrut&quot; style=&quot;height:3em;&quot;&gt;&lt;/span&gt;&lt;span class=&quot;mord&quot;&gt;&lt;span class=&quot;mord&quot;&gt;−&lt;/span&gt;&lt;span class=&quot;mord mathnormal&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;mspace&quot; style=&quot;margin-right:0.2222em;&quot;&gt;&lt;/span&gt;&lt;span class=&quot;mbin&quot;&gt;±&lt;/span&gt;&lt;span class=&quot;mspace&quot; style=&quot;margin-right:0.2222em;&quot;&gt;&lt;/span&gt;&lt;span class=&quot;mord sqrt&quot;&gt;&lt;span class=&quot;vlist-t vlist-t2&quot;&gt;&lt;span class=&quot;vlist-r&quot;&gt;&lt;span class=&quot;vlist&quot; style=&quot;height:0.9134em;&quot;&gt;&lt;span class=&quot;svg-align&quot; style=&quot;top:-3em;&quot;&gt;&lt;span class=&quot;pstrut&quot; style=&quot;height:3em;&quot;&gt;&lt;/span&gt;&lt;span class=&quot;mord&quot; style=&quot;padding-left:0.833em;&quot;&gt;&lt;span class=&quot;mord&quot;&gt;&lt;span class=&quot;mord mathnormal&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;msupsub&quot;&gt;&lt;span class=&quot;vlist-t&quot;&gt;&lt;span class=&quot;vlist-r&quot;&gt;&lt;span class=&quot;vlist&quot; style=&quot;height:0.7401em;&quot;&gt;&lt;span style=&quot;top:-2.989em;margin-right:0.05em;&quot;&gt;&lt;span class=&quot;pstrut&quot; style=&quot;height:2.7em;&quot;&gt;&lt;/span&gt;&lt;span class=&quot;sizing reset-size6 size3 mtight&quot;&gt;&lt;span class=&quot;mord mtight&quot;&gt;2&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;mspace&quot; style=&quot;margin-right:0.2222em;&quot;&gt;&lt;/span&gt;&lt;span class=&quot;mbin&quot;&gt;−&lt;/span&gt;&lt;span class=&quot;mspace&quot; style=&quot;margin-right:0.2222em;&quot;&gt;&lt;/span&gt;&lt;span class=&quot;mord&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;mord mathnormal&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;mord mathnormal&quot;&gt;c&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&quot;top:-2.8734em;&quot;&gt;&lt;span class=&quot;pstrut&quot; style=&quot;height:3em;&quot;&gt;&lt;/span&gt;&lt;span class=&quot;hide-tail&quot; style=&quot;min-width:0.853em;height:1.08em;&quot;&gt;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;400em&quot; height=&quot;1.08em&quot; viewBox=&quot;0 0 400000 1080&quot; preserveAspectRatio=&quot;xMinYMin slice&quot;&gt;&lt;path d=&quot;M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z&quot;/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;vlist-s&quot;&gt;​&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;vlist-r&quot;&gt;&lt;span class=&quot;vlist&quot; style=&quot;height:0.1266em;&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;vlist-s&quot;&gt;​&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;vlist-r&quot;&gt;&lt;span class=&quot;vlist&quot; style=&quot;height:0.686em;&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;mclose nulldelimiter&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;&lt;p&gt;Another formula:&lt;/p&gt;
+&lt;div class=&quot;math math-block&quot;&gt;&lt;span class=&quot;katex-display&quot;&gt;&lt;span class=&quot;katex&quot;&gt;&lt;span class=&quot;katex-mathml&quot;&gt;&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot; display=&quot;block&quot;&gt;&lt;semantics&gt;&lt;mrow&gt;&lt;munderover&gt;&lt;mo&gt;∑&lt;/mo&gt;&lt;mrow&gt;&lt;mi&gt;i&lt;/mi&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mn&gt;1&lt;/mn&gt;&lt;/mrow&gt;&lt;mi&gt;n&lt;/mi&gt;&lt;/munderover&gt;&lt;mi&gt;i&lt;/mi&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mfrac&gt;&lt;mrow&gt;&lt;mi&gt;n&lt;/mi&gt;&lt;mo stretchy=&quot;false&quot;&gt;(&lt;/mo&gt;&lt;mi&gt;n&lt;/mi&gt;&lt;mo&gt;+&lt;/mo&gt;&lt;mn&gt;1&lt;/mn&gt;&lt;mo stretchy=&quot;false&quot;&gt;)&lt;/mo&gt;&lt;/mrow&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/mfrac&gt;&lt;/mrow&gt;&lt;annotation encoding=&quot;application/x-tex&quot;&gt;\sum_{i=1}^{n} i = \frac{n(n+1)}{2}&lt;/annotation&gt;&lt;/semantics&gt;&lt;/math&gt;&lt;/span&gt;&lt;span class=&quot;katex-html&quot; aria-hidden=&quot;true&quot;&gt;&lt;span class=&quot;base&quot;&gt;&lt;span class=&quot;strut&quot; style=&quot;height:2.9291em;vertical-align:-1.2777em;&quot;&gt;&lt;/span&gt;&lt;span class=&quot;mop op-limits&quot;&gt;&lt;span class=&quot;vlist-t vlist-t2&quot;&gt;&lt;span class=&quot;vlist-r&quot;&gt;&lt;span class=&quot;vlist&quot; style=&quot;height:1.6514em;&quot;&gt;&lt;span style=&quot;top:-1.8723em;margin-left:0em;&quot;&gt;&lt;span class=&quot;pstrut&quot; style=&quot;height:3.05em;&quot;&gt;&lt;/span&gt;&lt;span class=&quot;sizing reset-size6 size3 mtight&quot;&gt;&lt;span class=&quot;mord mtight&quot;&gt;&lt;span class=&quot;mord mathnormal mtight&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;mrel mtight&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mord mtight&quot;&gt;1&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&quot;top:-3.05em;&quot;&gt;&lt;span class=&quot;pstrut&quot; style=&quot;height:3.05em;&quot;&gt;&lt;/span&gt;&lt;span&gt;&lt;span class=&quot;mop op-symbol large-op&quot;&gt;∑&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&quot;top:-4.3em;margin-left:0em;&quot;&gt;&lt;span class=&quot;pstrut&quot; style=&quot;height:3.05em;&quot;&gt;&lt;/span&gt;&lt;span class=&quot;sizing reset-size6 size3 mtight&quot;&gt;&lt;span class=&quot;mord mtight&quot;&gt;&lt;span class=&quot;mord mathnormal mtight&quot;&gt;n&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;vlist-s&quot;&gt;​&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;vlist-r&quot;&gt;&lt;span class=&quot;vlist&quot; style=&quot;height:1.2777em;&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;mspace&quot; style=&quot;margin-right:0.1667em;&quot;&gt;&lt;/span&gt;&lt;span class=&quot;mord mathnormal&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;mspace&quot; style=&quot;margin-right:0.2778em;&quot;&gt;&lt;/span&gt;&lt;span class=&quot;mrel&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mspace&quot; style=&quot;margin-right:0.2778em;&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;base&quot;&gt;&lt;span class=&quot;strut&quot; style=&quot;height:2.113em;vertical-align:-0.686em;&quot;&gt;&lt;/span&gt;&lt;span class=&quot;mord&quot;&gt;&lt;span class=&quot;mopen nulldelimiter&quot;&gt;&lt;/span&gt;&lt;span class=&quot;mfrac&quot;&gt;&lt;span class=&quot;vlist-t vlist-t2&quot;&gt;&lt;span class=&quot;vlist-r&quot;&gt;&lt;span class=&quot;vlist&quot; style=&quot;height:1.427em;&quot;&gt;&lt;span style=&quot;top:-2.314em;&quot;&gt;&lt;span class=&quot;pstrut&quot; style=&quot;height:3em;&quot;&gt;&lt;/span&gt;&lt;span class=&quot;mord&quot;&gt;&lt;span class=&quot;mord&quot;&gt;2&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&quot;top:-3.23em;&quot;&gt;&lt;span class=&quot;pstrut&quot; style=&quot;height:3em;&quot;&gt;&lt;/span&gt;&lt;span class=&quot;frac-line&quot; style=&quot;border-bottom-width:0.04em;&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&quot;top:-3.677em;&quot;&gt;&lt;span class=&quot;pstrut&quot; style=&quot;height:3em;&quot;&gt;&lt;/span&gt;&lt;span class=&quot;mord&quot;&gt;&lt;span class=&quot;mord mathnormal&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;mopen&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mord mathnormal&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;mspace&quot; style=&quot;margin-right:0.2222em;&quot;&gt;&lt;/span&gt;&lt;span class=&quot;mbin&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;mspace&quot; style=&quot;margin-right:0.2222em;&quot;&gt;&lt;/span&gt;&lt;span class=&quot;mord&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;mclose&quot;&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;vlist-s&quot;&gt;​&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;vlist-r&quot;&gt;&lt;span class=&quot;vlist&quot; style=&quot;height:0.686em;&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;mclose nulldelimiter&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;</code></pre></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr class="section-divider">
+
+    <div class="test-section test-passed" id="test-diagrams-(mermaid)">
+      <div class="test-status">
+        <span class="status-badge status-pass">PASSED</span>
+        <h2 class="feature-title">Diagrams (Mermaid)</h2>
+      </div>
+      <p class="feature-description">Creating diagrams with Mermaid syntax</p>
+      <p class="test-criteria"><strong>Success Criteria:</strong> Mermaid diagrams should be rendered (may require extension support)</p>
+      <div class="test-container">
+        <div class="test-input">
+          <div class="section-header">Markdown Input</div>
+          <pre><code>```mermaid
+graph TD;
+    A[Start] --&gt;|Process| B[End];
+    A --&gt;|Alternative| C[Result];
+    B --&gt;D[Finish];
+    C --&gt;D;
+```
+
+```mermaid
+sequenceDiagram
+    Alice-&gt;&gt;John: Hello John, how are you?
+    John--&gt;&gt;Alice: Great!
+```</code></pre>
+        </div>
+        <div class="test-output">
+          <div class="section-header">
+            HTML Output
+            <button class="toggle-view" data-section-id="output-diagrams-(mermaid)">
+              <span class="view-label">View Raw HTML</span>
+            </button>
+          </div>
+          <div class="output-display" id="output-diagrams-(mermaid)">
+            <div class="rendered-view active-view"><div class="mermaid">graph TD;
+    A[Start] --&gt;|Process| B[End];
+    A --&gt;|Alternative| C[Result];
+    B --&gt;D[Finish];
+    C --&gt;D;</div>
+<div class="mermaid">sequenceDiagram
+    Alice-&gt;&gt;John: Hello John, how are you?
+    John--&gt;&gt;Alice: Great!</div></div>
+            <div class="code-view"><pre><code>&lt;pre&gt;&lt;code&gt;[object Object]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;[object Object]&lt;/code&gt;&lt;/pre&gt;
+</code></pre></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr class="section-divider">
+
+  <div class="footer">
+    <p>Generated by FileToMarkdown Test Suite</p>
+    <p class="timestamp">Generated on 2025-04-10 22:20:58</p>
+  </div>
+
+  <script>
+    mermaid.initialize({ startOnLoad: true });
+    
+    // Initialize toggle buttons for view switching
+    document.addEventListener('DOMContentLoaded', function() {
+      const toggleButtons = document.querySelectorAll('.toggle-view');
+      toggleButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const sectionId = this.getAttribute('data-section-id');
+          const container = document.getElementById(sectionId);
+          const renderedView = container.querySelector('.rendered-view');
+          const codeView = container.querySelector('.code-view');
+          const viewLabel = this.querySelector('.view-label');
+          
+          if (renderedView.classList.contains('active-view')) {
+            renderedView.classList.remove('active-view');
+            codeView.classList.add('active-view');
+            viewLabel.textContent = 'View Rendered HTML';
+          } else {
+            codeView.classList.remove('active-view');
+            renderedView.classList.add('active-view');
+            viewLabel.textContent = 'View Raw HTML';
+          }
+        });
+      });
+    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+</body>
+</html>
+  

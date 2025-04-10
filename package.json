@@ -1,0 +1,20 @@
+{
+  "name": "markdowntorender",
+  "version": "1.1.0",
+  "description": "A renderer for markdown with extensive feature support",
+  "type": "module",
+  "main": "src/markdownrenderer.js",
+  "scripts": {
+    "test": "node tests/renderer-test.js",
+    "build": "npm install && npm test"
+  },
+  "author": "jojomondag",
+  "license": "MIT",
+  "dependencies": {
+    "katex": "^0.16.22",
+    "marked": "^15.0.8",
+    "marked-footnote": "^1.2.4",
+    "mermaid": "^11.6.0",
+    "prismjs": "^1.30.0"
+  }
+}
