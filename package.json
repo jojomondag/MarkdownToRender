@@ -10,6 +10,10 @@
   },
   "author": "jojomondag",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jojomondag/MarkdownToRender"
+  },
   "dependencies": {
     "katex": "^0.16.22",
     "marked": "^15.0.8",
