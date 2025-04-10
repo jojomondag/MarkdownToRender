@@ -2,7 +2,7 @@
 
 A Markdown renderer that unifies features from popular npm packages into one seamless solution.
 
-View features here [View features](https://jojomondag.github.io/MarkdownToRender/demo.html)
+## 👉 [View Live Demo of All Features](https://jojomondag.github.io/MarkdownToRender/) 👈
 
 **GitHub Repository:** [https://github.com/jojomondag/MarkdownToRender](https://github.com/jojomondag/MarkdownToRender)
 
@@ -16,6 +16,11 @@ View features here [View features](https://jojomondag.github.io/MarkdownToRender
 - YouTube thumbnails
 
 [View Live Demo of All Features](https://jojomondag.github.io/MarkdownToRender/)
+
+<div align="center">
+  <h3>🔍 <a href="https://jojomondag.github.io/MarkdownToRender/">See All These Features in Action!</a> 🔍</h3>
+  <p><i>Check out our interactive demo showing all supported markdown elements</i></p>
+</div>
 
 ## Installation
 
