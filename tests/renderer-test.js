@@ -142,7 +142,9 @@ No syntax highlighting applied
   {
     name: 'Video Links',
     description: 'Embedding video links using standard Markdown link syntax and thumbnail syntax',
-    markdown: `Thumbnail Link:\n@[youtube-thumbnail](https://www.youtube.com/watch?v=JstToSe6BsQ&t=700s)\n\nBare Auto-Link:\nhttps://www.youtube.com/watch?v=AnotherVideoID`,
+    markdown: `Thumbnail Link: @[youtube-thumbnail](https://www.youtube.com/watch?v=JstToSe6BsQ&t=700s)
+
+Bare Auto-Link: https://www.youtube.com/watch?v=AnotherVideoID`,
     criteria: 'Video URLs should render as a thumbnail image link or a standard anchor tag.'
   },
   {
@@ -1107,25 +1109,16 @@ async function generateUnifiedTestPage() {
       transition: opacity 0.3s;
     }
     .rendered-view {
-      opacity: 1;
-      height: auto;
-      overflow: auto;
+      display: none;
     }
     .code-view {
       display: none;
-      opacity: 0;
-      height: 0;
-      overflow: hidden;
     }
     .rendered-view.active-view {
       display: block;
-      opacity: 1;
-      height: auto;
     }
     .code-view.active-view {
       display: block;
-      opacity: 1;
-      height: auto;
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>

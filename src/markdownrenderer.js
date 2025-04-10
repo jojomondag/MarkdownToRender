@@ -78,10 +78,11 @@ function getCustomExtensions(renderer) {
       level: 'block',
       start(src) { return src.match(/@\[youtube-thumbnail\]/) ? 0 : -1; },
       tokenizer(src) {
-        const rule = /^@\[youtube-thumbnail\]\(([^)]+)\)(\n|$)/;
+        const rule = /^(.*)@\[youtube-thumbnail\]\(([^)]+)\)(\n|$)/;
         const match = rule.exec(src);
         if (match) {
-          const url = match[1];
+          const prefixText = match[1] || '';
+          const url = match[2];
           // Extract video ID from YouTube URL
           const videoIdMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?\/]+)/i);
           const videoId = videoIdMatch ? videoIdMatch[1] : '';
@@ -90,9 +91,9 @@ function getCustomExtensions(renderer) {
               type: 'html',
               raw: match[0],
               pre: false,
-              text: `<a href="${url}" class="youtube-thumbnail-link" target="_blank">
+              text: `<p>${prefixText}<a href="${url}" class="youtube-thumbnail-link" target="_blank">
                 <img src="https://img.youtube.com/vi/${videoId}/0.jpg" alt="YouTube Video Thumbnail" class="youtube-thumbnail-image">
-              </a>`
+              </a></p>`
             };
           }
         }
