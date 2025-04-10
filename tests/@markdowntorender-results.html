@@ -1,677 +1,289 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FileToMarkdown - Renderer Test</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css">
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      line-height: 1.6;
-      color: #333;
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #f9f9f9;
-    }
-    header {
-      text-align: center;
-      margin-bottom: 30px;
-      padding: 20px;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
-    h1 {
-      color: #2c3e50;
-      margin-top: 0;
-    }
-    .summary {
-      background-color: #e8f5e9;
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 30px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-    .summary h2 {
-      margin-top: 0;
-      color: #2e7d32;
-    }
-    .test-summary {
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      margin-bottom: 30px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-    .summary-stats {
-      display: flex;
-      justify-content: space-around;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-    .stat-box {
-      flex: 1;
-      min-width: 120px;
-      background-color: #f8f9fa;
-      padding: 15px;
-      border-radius: 8px;
-      text-align: center;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-    .stat-value {
-      font-size: 2.5rem;
-      font-weight: bold;
-      margin-bottom: 5px;
-      color: #345;
-    }
-    .stat-label {
-      font-size: 0.9rem;
-      color: #666;
-    }
-    .stat-passed {
-      background-color: #e8f5e9;
-    }
-    .stat-passed .stat-value {
-      color: #2e7d32;
-    }
-    .stat-warning {
-      background-color: #fff8e1;
-    }
-    .stat-warning .stat-value {
-      color: #f57c00;
-    }
-    .stat-failed {
-      background-color: #ffebee;
-    }
-    .stat-failed .stat-value {
-      color: #c62828;
-    }
-    .stat-percentage {
-      font-size: 2.8rem;
-    }
-    .test-navigation {
-      background-color: #fff;
-      padding: 15px 20px;
-      border-radius: 8px;
-      margin: 0 0 30px 0;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-    .nav-list {
-      list-style-type: none;
-      padding: 0;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .nav-list li {
-      background-color: #f0f4f8;
-      border-radius: 4px;
-    }
-    .nav-passed {
-      background-color: #e8f5e9 !important;
-    }
-    .nav-failed {
-      background-color: #ffebee !important;
-    }
-    .nav-status-dot {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      margin-right: 5px;
-    }
-    .dot-pass {
-      background-color: #2e7d32;
-    }
-    .dot-fail {
-      background-color: #c62828;
-    }
-    .nav-list a {
-      display: flex;
-      align-items: center;
-      padding: 5px 10px;
-      text-decoration: none;
-      color: #345;
-      transition: all 0.2s;
-    }
-    .nav-list a:hover {
-      background-color: #5c6bc0;
-      color: white;
-      border-radius: 4px;
-    }
-    .nav-list a:hover .nav-status-dot {
-      background-color: white;
-    }
-    .test-section {
-      background-color: #fff;
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 30px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-      border-top: 4px solid #5c6bc0;
-    }
-    .test-passed {
-      border-top-color: #2e7d32;
-    }
-    .test-failed {
-      border-top-color: #c62828;
-    }
-    .test-status {
-      display: flex;
-      align-items: center;
-      margin-bottom: 15px;
-    }
-    .status-badge {
-      display: inline-block;
-      padding: 3px 10px;
-      border-radius: 4px;
-      margin-right: 15px;
-      font-weight: bold;
-      font-size: 0.8rem;
-      color: white;
-    }
-    .status-pass {
-      background-color: #2e7d32;
-    }
-    .status-fail {
-      background-color: #c62828;
-    }
-    .feature-title {
-      color: #2c3e50;
-      margin: 0;
-    }
-    .feature-description {
-      color: #666;
-      font-style: italic;
-      margin-bottom: 10px;
-    }
-    .test-criteria {
-      background-color: #f5f5f5;
-      padding: 10px 15px;
-      border-radius: 4px;
-      margin-bottom: 20px;
-      border-left: 4px solid #5c6bc0;
-    }
-    .test-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 25px;
-      margin-bottom: 20px;
-    }
-    .test-input, .test-output {
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 20px;
-      overflow: auto;
-      background-color: #fff;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      max-height: 500px;
-    }
-    .test-input {
-      background-color: #f8f9fa;
-    }
-    .test-output {
-      background-color: #fff;
-    }
-    .section-header {
-      background-color: #f0f4f8;
-      padding: 10px 15px;
-      border-radius: 5px;
-      margin: 0 0 20px 0;
-      font-weight: bold;
-      color: #345;
-      border-left: 4px solid #5c6bc0;
-    }
-    .section-divider {
-      border: 0;
-      height: 1px;
-      background-color: #eee;
-      margin: 0 0 30px 0;
-      display: none; /* Hide dividers between sections since we're using cards */
-    }
-    pre {
-      background-color: #f5f5f5;
-      padding: 15px;
-      border-radius: 6px;
-      overflow-x: auto;
-      border: 1px solid #e0e0e0;
-      margin: 0;
-    }
-    code {
-      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-      font-size: 0.9em;
-    }
-    .footer {
-      text-align: center;
-      margin-top: 30px;
-      padding: 20px;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
-    .timestamp {
-      font-size: 0.9em;
-      color: #777;
-    }
-    .meta-info {
-      margin-top: 20px;
-      font-size: 0.9em;
-      color: #666;
-      background-color: #f5f5f5;
-      padding: 10px;
-      border-radius: 5px;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin: 15px 0;
-    }
-    table, th, td {
-      border: 1px solid #ddd;
-    }
-    th, td {
-      padding: 10px;
-      text-align: left;
-    }
-    th {
-      background-color: #f2f2f2;
-    }
-    blockquote {
-      border-left: 4px solid #ccc;
-      margin-left: 0;
-      padding: 10px 20px;
-      color: #555;
-      background-color: #f9f9f9;
-      border-radius: 0 5px 5px 0;
-    }
-    img {
-      max-width: 100%;
-      height: auto;
-      display: block;
-      margin: 15px auto;
-      border-radius: 5px;
-    }
-    hr {
-      border: 0;
-      height: 1px;
-      background-color: #ddd;
-      margin: 25px 0;
-    }
-    /* Styles for admonitions */
-    .admonition {
-      padding: 15px;
-      margin: 20px 0;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-    .admonition-title {
-      font-weight: bold;
-      margin-top: 0;
-    }
-    .admonition.note {
-      background-color: #e8f4fd;
-      border-left: 4px solid #4a87c5;
-    }
-    .admonition.warning {
-      background-color: #fff8e6;
-      border-left: 4px solid #f0ad4e;
-    }
-    .admonition.danger {
-      background-color: #fde8e8;
-      border-left: 4px solid #d9534f;
-    }
-    /* Math expressions */
-    .math-inline, .math-block {
-      font-family: 'KaTeX_Math', 'Times New Roman', serif;
-    }
-    .math-block {
-      display: block;
-      text-align: center;
-      margin: 1em 0;
-      padding: 15px;
-      background-color: #f9f9f9;
-      border-radius: 5px;
-    }
-    /* Task lists */
-    .task-list-item {
-      list-style-type: none;
-      margin-left: -20px;
-    }
-    .task-list-item-checkbox {
-      margin-right: 8px;
-    }
-    /* Footnotes */
-    .footnote {
-      font-size: 0.9em;
-      color: #555;
-      border-top: 1px solid #eee;
-      padding-top: 15px;
-      margin-top: 30px;
-    }
-    .footnote-ref {
-      vertical-align: super;
-      font-size: 0.8em;
-      color: #0066cc;
-      text-decoration: none;
-    }
-    /* Diagrams */
-    .mermaid-diagram {
-      text-align: center;
-      background: #f9f9f9;
-      padding: 15px;
-      border-radius: 5px;
-      margin: 20px 0;
-      border: 1px solid #eee;
-    }
-    /* Highlighted text */
-    mark {
-      background-color: #fff59d;
-      padding: 2px 4px;
-      border-radius: 3px;
-    }
-    /* Code blocks with syntax highlighting improvements */
-    .language-javascript {
-      color: #333;
-    }
-    .language-javascript .keyword {
-      color: #07a;
-    }
-    .language-javascript .string {
-      color: #690;
-    }
-    .language-javascript .function {
-      color: #dd4a68;
-    }
-    .language-javascript .comment {
-      color: #999;
-    }
-    /* Add Python styles */
-    .language-python {
-      color: #333;
-    }
-    .language-python .keyword {
-      color: #0077aa; /* Similar to JS keyword color */
-    }
-    .language-python .string,
-    .language-python .string-literal {
-      color: #669900; /* Similar to JS string color */
-    }
-    .language-python .function {
-      color: #dd4a68; /* Similar to JS function color */
-    }
-    .language-python .comment {
-      color: #999;    /* Same as JS comment color */
-    }
-    .language-python .number {
-      color: #990055;
-    }
-    .language-python .class-name {
-      color: #55aaff;
-    }
-    .language-python .builtin,
-    .language-python .decorator {
-       color: #aa00ff;
-    }
-    /* YouTube Thumbnail Styles */
-    .youtube-thumbnail-link {
-      display: inline-block;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      overflow: hidden;
-      position: relative; /* For potential play icon overlay later */
-    }
-    .youtube-thumbnail-link:hover {
-      border-color: #aaa;
-    }
-    .youtube-thumbnail-image {
-      display: block;
-      max-width: 240px; /* Limit thumbnail size */
-      height: auto;
-    }
-    /* More specific rule for images within the test output container */
-    .test-output img {
-      width: 100%;  /* Make image fill container width */
-      height: auto; /* Maintain aspect ratio */
-      max-width: none; /* Override the global max-width if needed */
-    }
-    /* Improved responsive design */
-    @media (max-width: 768px) {
-      .test-container {
-        grid-template-columns: 1fr;
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>FileToMarkdown - Renderer Test</title>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css">
+      
+    <style>
+      /* Base Styles */
+      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 1400px; margin: 0 auto; padding: 20px; background-color: #f9f9f9; }
+      
+      /* Layout Components */
+      header, .footer, .test-navigation, .test-summary, .summary { background-color: #fff; border-radius: 8px; padding: 20px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+      .test-section { background-color: #fff; border-radius: 8px; padding: 20px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-top: 4px solid #5c6bc0; }
+      .test-passed { border-top-color: #2e7d32; }
+      .test-failed { border-top-color: #c62828; }
+      
+      /* Test Status */
+      .test-status { display: flex; align-items: center; margin-bottom: 15px; }
+      .status-badge { display: inline-block; padding: 3px 10px; border-radius: 4px; margin-right: 15px; font-weight: bold; font-size: 0.8rem; color: white; }
+      .status-pass { background-color: #2e7d32; }
+      .status-fail { background-color: #c62828; }
+      
+      /* Text Elements */
+      h1 { color: #2c3e50; margin-top: 0; }
+      .feature-title { color: #2c3e50; margin: 0; }
+      .feature-description { color: #666; font-style: italic; margin-bottom: 10px; }
+      .test-criteria { background-color: #f5f5f5; padding: 10px 15px; border-radius: 4px; margin-bottom: 20px; border-left: 4px solid #5c6bc0; }
+      
+      /* Layout Containers */
+      .test-container { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 20px; }
+      .test-input, .test-output { border: 1px solid #ddd; border-radius: 8px; padding: 20px; overflow: auto; background-color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.05); max-height: 500px; }
+      .test-input { background-color: #f8f9fa; }
+      
+      /* Headers and Dividers */
+      .section-header { background-color: #f0f4f8; padding: 10px 15px; border-radius: 5px; margin: 0 0 20px 0; font-weight: bold; color: #345; border-left: 4px solid #5c6bc0; }
+      .section-divider { border: 0; height: 1px; background-color: #eee; margin: 0 0 30px 0; display: none; }
+      
+      /* Code Blocks */
+      pre { background-color: #f5f5f5; padding: 15px; border-radius: 6px; overflow-x: auto; border: 1px solid #e0e0e0; margin: 0; }
+      code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em; }
+      
+      /* Navigation */
+      .nav-list { list-style-type: none; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+      .nav-list li { background-color: #f0f4f8; border-radius: 4px; }
+      .nav-passed { background-color: #e8f5e9 !important; }
+      .nav-failed { background-color: #ffebee !important; }
+      .nav-status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; }
+      .dot-pass { background-color: #2e7d32; }
+      .dot-fail { background-color: #c62828; }
+      .nav-list a { display: flex; align-items: center; padding: 5px 10px; text-decoration: none; color: #345; transition: all 0.2s; }
+      .nav-list a:hover { background-color: #5c6bc0; color: white; border-radius: 4px; }
+      .nav-list a:hover .nav-status-dot { background-color: white; }
+      
+      /* Summary Stats */
+      .summary-stats { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 15px; }
+      .stat-box { flex: 1; min-width: 120px; background-color: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+      .stat-value { font-size: 2.5rem; font-weight: bold; margin-bottom: 5px; color: #345; }
+      .stat-label { font-size: 0.9rem; color: #666; }
+      .stat-passed { background-color: #e8f5e9; }
+      .stat-passed .stat-value { color: #2e7d32; }
+      .stat-warning { background-color: #fff8e1; }
+      .stat-warning .stat-value { color: #f57c00; }
+      .stat-failed { background-color: #ffebee; }
+      .stat-failed .stat-value { color: #c62828; }
+      .stat-percentage { font-size: 2.8rem; }
+      
+      /* Meta Info */
+      .meta-info { margin-top: 20px; font-size: 0.9em; color: #666; background-color: #f5f5f5; padding: 10px; border-radius: 5px; }
+      .timestamp { font-size: 0.9em; color: #777; }
+      
+      /* Toggle View */
+      .toggle-view { float: right; background-color: #f0f4f8; border: 1px solid #ddd; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; cursor: pointer; color: #345; transition: all 0.2s; }
+      .toggle-view:hover { background-color: #5c6bc0; color: white; border-color: #5c6bc0; }
+      
+      /* Output Views */
+      .output-display { position: relative; }
+      .rendered-view, .code-view { transition: opacity 0.3s; }
+      .rendered-view, .code-view { display: none; }
+      .rendered-view.active-view, .code-view.active-view { display: block; }
+      
+      /* Markdown Elements */
+      table { border-collapse: collapse; width: 100%; margin: 15px 0; }
+      table, th, td { border: 1px solid #ddd; }
+      th, td { padding: 10px; text-align: left; }
+      th { background-color: #f2f2f2; }
+      blockquote { border-left: 4px solid #ccc; margin-left: 0; padding: 10px 20px; color: #555; background-color: #f9f9f9; border-radius: 0 5px 5px 0; }
+      img { max-width: 100%; height: auto; display: block; margin: 15px auto; border-radius: 5px; }
+      hr { border: 0; height: 1px; background-color: #ddd; margin: 25px 0; }
+      mark { background-color: #fff59d; padding: 2px 4px; border-radius: 3px; }
+      
+      /* YouTube Elements */
+      .youtube-thumbnail-link { display: inline-block; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; position: relative; }
+      .youtube-thumbnail-link:hover { border-color: #aaa; }
+      .youtube-thumbnail-image { display: block; max-width: 240px; height: auto; }
+      .test-output img { width: 100%; height: auto; max-width: none; }
+      
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .test-container { grid-template-columns: 1fr; }
+        .test-input, .test-output { max-height: 400px; }
+        .nav-list, .summary-stats { flex-direction: column; }
       }
-      .test-input, .test-output {
-        max-height: 400px;
-      }
-      .nav-list {
-        flex-direction: column;
-      }
-      .summary-stats {
-        flex-direction: column;
-      }
-    }
-    /* Toggle button for view switching */
-    .toggle-view {
-      float: right;
-      background-color: #f0f4f8;
-      border: 1px solid #ddd;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 0.8em;
-      cursor: pointer;
-      color: #345;
-      transition: all 0.2s;
-    }
-    .toggle-view:hover {
-      background-color: #5c6bc0;
-      color: white;
-      border-color: #5c6bc0;
-    }
-    
-    /* Output view container */
-    .output-display {
-      position: relative;
-    }
-    .rendered-view, .code-view {
-      transition: opacity 0.3s;
-    }
-    .rendered-view {
-      display: none;
-    }
-    .code-view {
-      display: none;
-    }
-    .rendered-view.active-view {
-      display: block;
-    }
-    .code-view.active-view {
-      display: block;
-    }
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-</head>
-<body>
-  <header>
-    <h1>FileToMarkdown - Renderer Test</h1>
-    <p>This page demonstrates the rendering capabilities of the FileToMarkdown renderer</p>
-  </header>
-
-  <div class="summary">
-    <h2>Test Summary</h2>
-    <p>This test demonstrates the conversion of various Markdown features to HTML using the FileToMarkdown renderer. Each section below shows a specific Markdown feature with its input and rendered output side by side.</p>
-    <div class="meta-info">
-      <div><strong>Test Run:</strong> 2025-04-10 22:33:27</div>
-      <div><strong>Test File:</strong> @test-results.html</div>
-      <div><strong>Renderer Version:</strong> 1.1.0</div>
-      <div><strong>Total Features Tested:</strong> 19</div>
-    </div>
-  </div>
-
-  
-  <div class="test-summary">
-    <div class="summary-stats">
-      <div class="stat-box">
-        <div class="stat-value">19</div>
-        <div class="stat-label">Total Tests</div>
-      </div>
-      <div class="stat-box stat-passed">
-        <div class="stat-value">19</div>
-        <div class="stat-label">Passed</div>
-      </div>
-      <div class="stat-box stat-failed">
-        <div class="stat-value">0</div>
-        <div class="stat-label">Failed</div>
-      </div>
-      <div class="stat-box stat-passed">
-        <div class="stat-value stat-percentage">100%</div>
-        <div class="stat-label">Pass Rate</div>
+    </style>
+      <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    </head>
+    <body>
+      
+    <header>
+      <h1>FileToMarkdown - Renderer Test</h1>
+      <p>This page demonstrates the rendering capabilities of the FileToMarkdown renderer</p>
+    </header>
+      
+    <div class="summary">
+      <h2>Test Summary</h2>
+      <p>This test demonstrates the conversion of various Markdown features to HTML using the FileToMarkdown renderer. Each section below shows a specific Markdown feature with its input and rendered output side by side.</p>
+      <div class="meta-info">
+        <div><strong>Test Run:</strong> 2025-04-10 23:26:05</div>
+        <div><strong>Test File:</strong> @markdowntorender-results.html</div>
+        <div><strong>Renderer Version:</strong> 1.0.2</div>
+        <div><strong>Total Features Tested:</strong> 19</div>
       </div>
     </div>
-  </div>
-  
-  
-  <div class="test-navigation">
-    <h3>Jump to Feature:</h3>
-    <ul class="nav-list">
       
-        <li class="nav-passed">
-          <a href="#test-headings">
-            <span class="nav-status-dot dot-pass"></span>
-            Headings
-          </a>
-        </li>
+    <div class="test-summary">
+      <div class="summary-stats">
+        <div class="stat-box">
+          <div class="stat-value">19</div>
+          <div class="stat-label">Total Tests</div>
+        </div>
+        <div class="stat-box stat-passed">
+          <div class="stat-value">19</div>
+          <div class="stat-label">Passed</div>
+        </div>
+        <div class="stat-box stat-failed">
+          <div class="stat-value">0</div>
+          <div class="stat-label">Failed</div>
+        </div>
+        <div class="stat-box stat-passed">
+          <div class="stat-value stat-percentage">100%</div>
+          <div class="stat-label">Pass Rate</div>
+        </div>
+      </div>
+    </div>
       
-        <li class="nav-passed">
-          <a href="#test-basic-formatting">
-            <span class="nav-status-dot dot-pass"></span>
-            Basic Formatting
-          </a>
-        </li>
+    <div class="test-navigation">
+      <h3>Jump to Feature:</h3>
+      <ul class="nav-list">
+        
+          <li class="nav-passed">
+            <a href="#test-headings">
+              <span class="nav-status-dot dot-pass"></span>
+              Headings
+            </a>
+          </li>
+        
+          <li class="nav-passed">
+            <a href="#test-basic-formatting">
+              <span class="nav-status-dot dot-pass"></span>
+              Basic Formatting
+            </a>
+          </li>
+        
+          <li class="nav-passed">
+            <a href="#test-unordered-lists">
+              <span class="nav-status-dot dot-pass"></span>
+              Unordered Lists
+            </a>
+          </li>
+        
+          <li class="nav-passed">
+            <a href="#test-ordered-lists">
+              <span class="nav-status-dot dot-pass"></span>
+              Ordered Lists
+            </a>
+          </li>
+        
+          <li class="nav-passed">
+            <a href="#test-task-lists">
+              <span class="nav-status-dot dot-pass"></span>
+              Task Lists
+            </a>
+          </li>
+        
+          <li class="nav-passed">
+            <a href="#test-inline-code">
+              <span class="nav-status-dot dot-pass"></span>
+              Inline Code
+            </a>
+          </li>
+        
+          <li class="nav-passed">
+            <a href="#test-code-blocks">
+              <span class="nav-status-dot dot-pass"></span>
+              Code Blocks
+            </a>
+          </li>
+        
+          <li class="nav-passed">
+            <a href="#test-blockquotes">
+              <span class="nav-status-dot dot-pass"></span>
+              Blockquotes
+            </a>
+          </li>
+        
+          <li class="nav-passed">
+            <a href="#test-links">
+              <span class="nav-status-dot dot-pass"></span>
+              Links
+            </a>
+          </li>
+        
+          <li class="nav-passed">
+            <a href="#test-video-links">
+              <span class="nav-status-dot dot-pass"></span>
+              Video Links
+            </a>
+          </li>
+        
+          <li class="nav-passed">
+            <a href="#test-images">
+              <span class="nav-status-dot dot-pass"></span>
+              Images
+            </a>
+          </li>
+        
+          <li class="nav-passed">
+            <a href="#test-tables">
+              <span class="nav-status-dot dot-pass"></span>
+              Tables
+            </a>
+          </li>
+        
+          <li class="nav-passed">
+            <a href="#test-horizontal-rule">
+              <span class="nav-status-dot dot-pass"></span>
+              Horizontal Rule
+            </a>
+          </li>
+        
+          <li class="nav-passed">
+            <a href="#test-html-embedding">
+              <span class="nav-status-dot dot-pass"></span>
+              HTML Embedding
+            </a>
+          </li>
+        
+          <li class="nav-passed">
+            <a href="#test-footnotes">
+              <span class="nav-status-dot dot-pass"></span>
+              Footnotes
+            </a>
+          </li>
+        
+          <li class="nav-passed">
+            <a href="#test-subscript-and-superscript">
+              <span class="nav-status-dot dot-pass"></span>
+              Subscript and Superscript
+            </a>
+          </li>
+        
+          <li class="nav-passed">
+            <a href="#test-highlighted-text">
+              <span class="nav-status-dot dot-pass"></span>
+              Highlighted Text
+            </a>
+          </li>
+        
+          <li class="nav-passed">
+            <a href="#test-math-expressions">
+              <span class="nav-status-dot dot-pass"></span>
+              Math Expressions
+            </a>
+          </li>
+        
+          <li class="nav-passed">
+            <a href="#test-diagrams-(mermaid)">
+              <span class="nav-status-dot dot-pass"></span>
+              Diagrams (Mermaid)
+            </a>
+          </li>
+      </ul>
+    </div>
       
-        <li class="nav-passed">
-          <a href="#test-unordered-lists">
-            <span class="nav-status-dot dot-pass"></span>
-            Unordered Lists
-          </a>
-        </li>
-      
-        <li class="nav-passed">
-          <a href="#test-ordered-lists">
-            <span class="nav-status-dot dot-pass"></span>
-            Ordered Lists
-          </a>
-        </li>
-      
-        <li class="nav-passed">
-          <a href="#test-task-lists">
-            <span class="nav-status-dot dot-pass"></span>
-            Task Lists
-          </a>
-        </li>
-      
-        <li class="nav-passed">
-          <a href="#test-inline-code">
-            <span class="nav-status-dot dot-pass"></span>
-            Inline Code
-          </a>
-        </li>
-      
-        <li class="nav-passed">
-          <a href="#test-code-blocks">
-            <span class="nav-status-dot dot-pass"></span>
-            Code Blocks
-          </a>
-        </li>
-      
-        <li class="nav-passed">
-          <a href="#test-blockquotes">
-            <span class="nav-status-dot dot-pass"></span>
-            Blockquotes
-          </a>
-        </li>
-      
-        <li class="nav-passed">
-          <a href="#test-links">
-            <span class="nav-status-dot dot-pass"></span>
-            Links
-          </a>
-        </li>
-      
-        <li class="nav-passed">
-          <a href="#test-video-links">
-            <span class="nav-status-dot dot-pass"></span>
-            Video Links
-          </a>
-        </li>
-      
-        <li class="nav-passed">
-          <a href="#test-images">
-            <span class="nav-status-dot dot-pass"></span>
-            Images
-          </a>
-        </li>
-      
-        <li class="nav-passed">
-          <a href="#test-tables">
-            <span class="nav-status-dot dot-pass"></span>
-            Tables
-          </a>
-        </li>
-      
-        <li class="nav-passed">
-          <a href="#test-horizontal-rule">
-            <span class="nav-status-dot dot-pass"></span>
-            Horizontal Rule
-          </a>
-        </li>
-      
-        <li class="nav-passed">
-          <a href="#test-html-embedding">
-            <span class="nav-status-dot dot-pass"></span>
-            HTML Embedding
-          </a>
-        </li>
-      
-        <li class="nav-passed">
-          <a href="#test-footnotes">
-            <span class="nav-status-dot dot-pass"></span>
-            Footnotes
-          </a>
-        </li>
-      
-        <li class="nav-passed">
-          <a href="#test-subscript-and-superscript">
-            <span class="nav-status-dot dot-pass"></span>
-            Subscript and Superscript
-          </a>
-        </li>
-      
-        <li class="nav-passed">
-          <a href="#test-highlighted-text">
-            <span class="nav-status-dot dot-pass"></span>
-            Highlighted Text
-          </a>
-        </li>
-      
-        <li class="nav-passed">
-          <a href="#test-math-expressions">
-            <span class="nav-status-dot dot-pass"></span>
-            Math Expressions
-          </a>
-        </li>
-      
-        <li class="nav-passed">
-          <a href="#test-diagrams-(mermaid)">
-            <span class="nav-status-dot dot-pass"></span>
-            Diagrams (Mermaid)
-          </a>
-        </li>
-    </ul>
-  </div>
-  
-  
     <div class="test-section test-passed" id="test-headings">
       <div class="test-status">
         <span class="status-badge status-pass">PASSED</span>
@@ -1121,12 +733,12 @@ Bare Auto-Link: https://www.youtube.com/watch?v=AnotherVideoID</code></pre>
           </div>
           <div class="output-display" id="output-video-links">
             <div class="rendered-view active-view"><p>Thumbnail Link: <a href="https://www.youtube.com/watch?v=JstToSe6BsQ&t=700s" class="youtube-thumbnail-link" target="_blank">
-                <img src="https://img.youtube.com/vi/JstToSe6BsQ/0.jpg" alt="YouTube Video Thumbnail" class="youtube-thumbnail-image">
-              </a></p><p>Bare Auto-Link: <a href="https://www.youtube.com/watch?v=AnotherVideoID">https://www.youtube.com/watch?v=AnotherVideoID</a></p>
+                                    <img src="https://img.youtube.com/vi/JstToSe6BsQ/0.jpg" alt="YouTube Video Thumbnail" class="youtube-thumbnail-image">
+                                </a></p><p>Bare Auto-Link: <a href="https://www.youtube.com/watch?v=AnotherVideoID">https://www.youtube.com/watch?v=AnotherVideoID</a></p>
 </div>
             <div class="code-view"><pre><code>&lt;p&gt;Thumbnail Link: &lt;a href=&quot;https://www.youtube.com/watch?v=JstToSe6BsQ&amp;t=700s&quot; class=&quot;youtube-thumbnail-link&quot; target=&quot;_blank&quot;&gt;
-                &lt;img src=&quot;https://img.youtube.com/vi/JstToSe6BsQ/0.jpg&quot; alt=&quot;YouTube Video Thumbnail&quot; class=&quot;youtube-thumbnail-image&quot;&gt;
-              &lt;/a&gt;&lt;/p&gt;&lt;p&gt;Bare Auto-Link: &lt;a href=&quot;https://www.youtube.com/watch?v=AnotherVideoID&quot;&gt;https://www.youtube.com/watch?v=AnotherVideoID&lt;/a&gt;&lt;/p&gt;
+                                    &lt;img src=&quot;https://img.youtube.com/vi/JstToSe6BsQ/0.jpg&quot; alt=&quot;YouTube Video Thumbnail&quot; class=&quot;youtube-thumbnail-image&quot;&gt;
+                                &lt;/a&gt;&lt;/p&gt;&lt;p&gt;Bare Auto-Link: &lt;a href=&quot;https://www.youtube.com/watch?v=AnotherVideoID&quot;&gt;https://www.youtube.com/watch?v=AnotherVideoID&lt;/a&gt;&lt;/p&gt;
 </code></pre></div>
           </div>
         </div>
@@ -1599,42 +1211,41 @@ sequenceDiagram
       </div>
     </div>
     <hr class="section-divider">
-
-  <div class="footer">
-    <p>Generated by FileToMarkdown Test Suite</p>
-    <p class="timestamp">Generated on 2025-04-10 22:33:27</p>
-  </div>
-
-  <script>
-    mermaid.initialize({ startOnLoad: true });
-    
-    // Initialize toggle buttons for view switching
-    document.addEventListener('DOMContentLoaded', function() {
-      const toggleButtons = document.querySelectorAll('.toggle-view');
-      toggleButtons.forEach(button => {
-        button.addEventListener('click', function() {
-          const sectionId = this.getAttribute('data-section-id');
-          const container = document.getElementById(sectionId);
-          const renderedView = container.querySelector('.rendered-view');
-          const codeView = container.querySelector('.code-view');
-          const viewLabel = this.querySelector('.view-label');
-          
-          if (renderedView.classList.contains('active-view')) {
-            renderedView.classList.remove('active-view');
-            codeView.classList.add('active-view');
-            viewLabel.textContent = 'View Rendered HTML';
-          } else {
-            codeView.classList.remove('active-view');
-            renderedView.classList.add('active-view');
-            viewLabel.textContent = 'View Raw HTML';
-          }
+      
+    <div class="footer">
+      <p>Generated by FileToMarkdown Test Suite</p>
+      <p class="timestamp">Generated on 2025-04-10 23:26:05</p>
+    </div>
+      
+    <script>
+      mermaid.initialize({ startOnLoad: true });
+      
+      // Initialize toggle buttons for view switching
+      document.addEventListener('DOMContentLoaded', function() {
+        const toggleButtons = document.querySelectorAll('.toggle-view');
+        toggleButtons.forEach(button => {
+          button.addEventListener('click', function() {
+            const sectionId = this.getAttribute('data-section-id');
+            const container = document.getElementById(sectionId);
+            const renderedView = container.querySelector('.rendered-view');
+            const codeView = container.querySelector('.code-view');
+            const viewLabel = this.querySelector('.view-label');
+            
+            if (renderedView.classList.contains('active-view')) {
+              renderedView.classList.remove('active-view');
+              codeView.classList.add('active-view');
+              viewLabel.textContent = 'View Rendered HTML';
+            } else {
+              codeView.classList.remove('active-view');
+              renderedView.classList.add('active-view');
+              viewLabel.textContent = 'View Raw HTML';
+            }
+          });
         });
       });
-    });
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
-</body>
-</html>
-  
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    </body>
+    </html>

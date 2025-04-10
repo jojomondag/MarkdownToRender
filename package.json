@@ -1,11 +1,11 @@
 {
   "name": "markdowntorender",
-  "version": "1.1.0",
+  "version": "1.0.2",
   "description": "A renderer for markdown with extensive feature support",
   "type": "module",
-  "main": "src/markdownrenderer.js",
+  "main": "src/markdowntorender.js",
   "scripts": {
-    "test": "node tests/renderer-test.js",
+    "test": "node tests/markdowntorender-test.js",
     "build": "npm install && npm test"
   },
   "author": "jojomondag",
