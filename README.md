@@ -15,7 +15,7 @@ View features here [View features](https://jojomondag.github.io/MarkdownToRender
 - Custom elements
 - YouTube thumbnails
 
-[View Live Demo of All Features](https://jojomondag.github.io/MarkdownToRender/demo.html)
+[View Live Demo of All Features](https://jojomondag.github.io/MarkdownToRender/)
 
 ## Installation
 
@@ -48,6 +48,10 @@ This runs the test suite and generates a visual HTML report at `@markdowntorende
 ### Demo of Features
 
 After running the tests, you can open `tests/@markdowntorender-results.html` in your browser to see a complete demonstration of all supported Markdown features with examples and their rendered output.
+
+This visual reference is extremely helpful for users to understand the full capabilities of the package.
+
+You can also [view all rendered features online](https://jojomondag.github.io/MarkdownToRender/) without installing the package.
 
 ## License
 
