@@ -467,14 +467,14 @@ class MarkdownRenderer {
      * @param {string} filePath - Path to the markdown file
      * @returns {string} - Rendered HTML content
      */
-    readMarkdownFromFileSync(filePath) {
-        try {
-            const markdown = fs.readFileSync(filePath, 'utf-8');
-            return this.render(markdown);
-        } catch (error) {
-            throw new Error(`Error reading markdown file: ${error.message}`);
-        }
-    }
+    // readMarkdownFromFileSync(filePath) {
+    //     try {
+    //         const markdown = fs.readFileSync(filePath, 'utf-8');
+    //         return this.render(markdown);
+    //     } catch (error) {
+    //         throw new Error(`Error reading markdown file: ${error.message}`);
+    //     }
+    // }
 
     /**
      * Render markdown content to HTML

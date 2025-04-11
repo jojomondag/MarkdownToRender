@@ -1,6 +1,6 @@
 # MarkdownToRender
 
-A Markdown renderer that unifies features from popular npm packages into one seamless solution.
+A Markdown renderer that unifies features from popular npm packages into one seamless solution. It parses markdown content provided as a string or read from a file, identifies supported elements like code blocks, math equations, diagrams, and renders them into HTML.
 
 <div>
   <h3>🔍 <a href="https://jojomondag.github.io/MarkdownToRender/">See Features in Action!</a> 🔍</h3>
@@ -24,14 +24,14 @@ npm install markdowntorender
 ## Basic Usage
 
 ```javascript
-// ES Module import
 import MarkdownRenderer from 'markdowntorender';
+
 const renderer = new MarkdownRenderer();
 
-// From string
-const html = renderer.render('# Hello World\n\nThis is **bold** text.');
+// Render markdown from a string
+const html = renderer.render('# Hello World\nThis is **bold**.');
 
-// From file
+// Render markdown from a file
 const htmlFromFile = await renderer.readMarkdownFromFile('path/to/file.md');
 ```
 
