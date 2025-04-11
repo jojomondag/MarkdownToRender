@@ -1,6 +1,6 @@
 {
   "name": "markdowntorender",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A renderer for markdown with extensive feature support",
   "type": "module",
   "main": "src/markdowntorender.js",
@@ -10,6 +10,19 @@
   },
   "author": "jojomondag",
   "license": "MIT",
+  "keywords": [
+    "markdown",
+    "renderer",
+    "gfm",
+    "syntax highlighting",
+    "prismjs",
+    "math",
+    "katex",
+    "diagrams",
+    "mermaid",
+    "custom elements",
+    "youtube"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/jojomondag/MarkdownToRender"
