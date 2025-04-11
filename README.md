@@ -2,7 +2,7 @@
 
 A Markdown renderer that unifies features from popular npm packages into one seamless solution. It parses markdown content provided as a string or read from a file, identifies supported elements like code blocks, math equations, diagrams, and renders them into HTML.
 
-<div>
+<div style="text-align: center;">
   <h3>🔍 <a href="https://jojomondag.github.io/MarkdownToRender/">See Features in Action!</a> 🔍</h3>
   <p><i>Check out our interactive demo showing all supported markdown elements</i></p>
 </div>

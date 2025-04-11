@@ -1,6 +1,6 @@
 {
   "name": "markdowntorender",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A renderer for markdown with extensive feature support",
   "type": "module",
   "main": "src/markdowntorender.js",
