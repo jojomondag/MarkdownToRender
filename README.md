@@ -42,7 +42,3 @@ npm test
 ```
 
 Runs the test suite and generates a visual HTML report at `tests/@markdowntorender-results.html` that shows all supported Markdown features and their rendering.
-
-## License
-
-MIT
