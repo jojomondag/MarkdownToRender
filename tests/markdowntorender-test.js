@@ -3,11 +3,13 @@
  * Displays individual test cases for each Markdown feature
  * with input and output shown side by side for each feature
  */
-import MarkdownRenderer from '../src/markdowntorender.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { promises as fs } from 'fs';
 import * as fsSync from 'fs';
+
+// Import the MarkdownRenderer class
+import MarkdownRenderer from '../src/markdowntorender.js';
 
 // Get the directory name
 const __filename = fileURLToPath(import.meta.url);
@@ -17,12 +19,13 @@ const __dirname = path.dirname(__filename);
 const OUTPUT_DIR = path.join(__dirname);
 const OUTPUT_FILE = path.join(OUTPUT_DIR, '@markdowntorender-results.html');
 
-// Create a renderer with default settings
-const renderer = new MarkdownRenderer({
-  highlight: true,
-  loadLanguages: true,
-  dynamicFileTypes: {}
-});
+// Create a renderer instance
+const renderer = new MarkdownRenderer();
+
+// Create a function to render markdown using the AST approach
+function renderMarkdown(markdown) {
+  return renderer.render(markdown);
+}
 
 // Define individual test cases for each Markdown feature
 const TEST_CASES = [
@@ -447,7 +450,8 @@ const Components = {
     </script>
     <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>`;
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>`;
   },
   
   // Generate styles HTML - could be moved to external file to further reduce size
@@ -562,6 +566,7 @@ const Components = {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>FileToMarkdown - Renderer Test</title>
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css">
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
       ${this.styles()}
       <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
     </head>
@@ -799,9 +804,10 @@ function containsTextContent(html, textContent) {
 async function getPackageVersion() {
   try {
     const packageFile = await fs.readFile(path.join(__dirname, '../package.json'), 'utf8');
-    return JSON.parse(packageFile).version;
+    const version = JSON.parse(packageFile).version;
+    return `${version} (AST)`;  // Add AST annotation to indicate new approach
   } catch (error) {
-    return '1.0.0'; // Fallback version
+    return '1.0.0 (AST)'; // Fallback version with AST annotation
   }
 }
 
@@ -825,7 +831,8 @@ async function generateUnifiedTestPage() {
   let testCounter = 0;
   TEST_CASES.forEach(testCase => {
     testCounter++;
-    const renderedHtml = renderer.render(testCase.markdown);
+    // Use our new AST-based rendering approach
+    const renderedHtml = renderMarkdown(testCase.markdown);
     const passed = evaluateTest(testCase, renderedHtml);
     testResults.push({ ...testCase, renderedHtml, passed });
 

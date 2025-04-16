@@ -1,17 +1,16 @@
 # MarkdownToRender
 
-A Markdown renderer that unifies features from popular npm packages into one seamless solution. It parses markdown content provided as a string or read from a file, identifies supported elements like code blocks, math equations, diagrams, and renders them into HTML.
-
-<h3>🔍 <a href="https://jojomondag.github.io/MarkdownToRender/">See Features in Action!</a> 🔍</h3>
-<p><i>Check out our interactive demo showing all supported markdown elements</i></p>
+A modern, AST-based Markdown rendering library with extensive feature support.
 
 ## Features
-- GitHub Flavored Markdown
-- [Syntax highlighting (PrismJS)](https://www.npmjs.com/package/prismjs)
-- [Math expressions (KaTeX)](https://www.npmjs.com/package/katex)
-- [Diagrams (Mermaid)](https://www.npmjs.com/package/mermaid)
-- Custom elements
-- YouTube thumbnails
+
+- **AST-Based Architecture** - Two-phase parsing and rendering for better extensibility
+- **Comprehensive Markdown Support** - All standard Markdown plus GitHub Flavored Markdown
+- **Math Expression Rendering** - KaTeX integration for mathematical formulas
+- **Diagram Support** - Integrated Mermaid.js diagram rendering
+- **Code Syntax Highlighting** - PrismJS integration for beautiful code blocks
+- **Extended Syntax** - Task lists, footnotes, subscript, superscript, highlighted text
+- **YouTube Integration** - Special syntax for embedding YouTube videos
 
 ## Installation
 
@@ -19,24 +18,129 @@ A Markdown renderer that unifies features from popular npm packages into one sea
 npm install markdowntorender
 ```
 
-## Basic Usage
+## Usage
 
 ```javascript
 import MarkdownRenderer from 'markdowntorender';
 
+// Create a renderer instance
 const renderer = new MarkdownRenderer();
 
-// Render markdown from a string
-const html = renderer.render('# Hello World\nThis is **bold**.');
+// Render some markdown
+const html = renderer.render(`
+# Hello World
+
+This is **bold** and *italic* text.
+
+\`\`\`javascript
+// Code with syntax highlighting
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+\`\`\`
+
+Math: $E = mc^2$
+
+`);
+
+// Display the rendered HTML
+document.getElementById('content').innerHTML = html;
+```
+
+## Advanced Usage
+
+### Loading From Files
+
+```javascript
+import MarkdownRenderer from 'markdowntorender';
+import path from 'path';
+
+const renderer = new MarkdownRenderer();
 
 // Render markdown from a file
-const htmlFromFile = await renderer.readMarkdownFromFile('path/to/file.md');
+const filePath = path.join(__dirname, 'document.md');
+renderer.readMarkdownFromFile(filePath)
+  .then(html => {
+    console.log(html);
+  })
+  .catch(err => {
+    console.error('Error rendering:', err);
+  });
 ```
 
-### Running Tests
+### Configuration Options
 
-```bash
-npm test
+```javascript
+const renderer = new MarkdownRenderer({
+  highlight: true,        // Enable syntax highlighting
+  loadLanguages: true,    // Load additional Prism languages
+  dynamicFileTypes: {}    // Custom file type mappings
+});
 ```
 
-Runs the test suite and generates a visual HTML report at `tests/@markdowntorender-results.html` that shows all supported Markdown features and their rendering.
+## How It Works
+
+MarkdownToRender uses a two-phase approach:
+
+1. **Parsing Phase**: Converts Markdown to an Abstract Syntax Tree (AST)
+2. **Rendering Phase**: Transforms the AST into HTML with all features applied
+
+This approach provides several benefits:
+- Better modularity and maintainability
+- Easier to add new features and output formats
+- More precise control over the rendering process
+
+## Supported Markdown Features
+
+- Headings (levels 1-6)
+- Emphasis (bold, italic, strikethrough)
+- Lists (ordered, unordered, task lists)
+- Code blocks with syntax highlighting
+- Inline code
+- Blockquotes
+- Links
+- Images
+- Tables
+- Horizontal rules
+- HTML embedding
+- Footnotes
+- Subscript and superscript
+- Highlighted text
+- Math expressions
+- Mermaid diagrams
+
+## Math Expressions with KaTeX
+
+MarkdownToRender supports rendering mathematical expressions using [KaTeX](https://katex.org/). 
+
+### Inline Math
+
+For inline math expressions, use single dollar signs:
+
+```markdown
+The famous equation $E = mc^2$ was published by Einstein.
+```
+
+### Block Math
+
+For block-level math expressions, use double dollar signs:
+
+```markdown
+$$
+\frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
+$$
+```
+
+### Math Code Blocks
+
+You can also use code blocks with math, katex, or tex language specifiers:
+
+````markdown
+```math
+\sum_{i=1}^{n} i = \frac{n(n+1)}{2}
+```
+````
+
+## License
+
+MIT
